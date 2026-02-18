@@ -1,4 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR __fish_initialized:4300
+SETUVAR __fish_initialized:3400
+SETUVAR fish_key_bindings:fish_default_key_bindings
+SETUVAR fish_user_paths:/Users/ttran/\x2elocal/bin\x1e/opt/homebrew/bin
 SETUVAR theme_color_scheme:dracula
