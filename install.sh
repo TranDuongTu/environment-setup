@@ -87,6 +87,29 @@ install_packages_linux() {
     ok "Node.js already installed"
   fi
 
+  # kubectl
+  if ! command_exists kubectl; then
+    info "Installing kubectl..."
+    KUBECTL_VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt)
+    curl -sLo /tmp/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
+    rm -f /tmp/kubectl
+  else
+    ok "kubectl already installed"
+  fi
+
+  # k9s
+  if ! command_exists k9s; then
+    info "Installing k9s..."
+    K9S_VERSION=$(curl -s "https://api.github.com/repos/derailed/k9s/releases/latest" | grep -Po '"tag_name": *"\K[^"]*')
+    curl -sLo /tmp/k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
+    tar xf /tmp/k9s.tar.gz -C /tmp k9s
+    sudo install /tmp/k9s /usr/local/bin/k9s
+    rm -f /tmp/k9s /tmp/k9s.tar.gz
+  else
+    ok "k9s already installed"
+  fi
+
   # Go
   if ! command_exists go; then
     info "Installing Go..."
@@ -115,6 +138,7 @@ install_packages_macos() {
     ripgrep fzf
     node go python3
     cmake
+    kubectl k9s
   )
 
   info "Installing Homebrew packages..."
