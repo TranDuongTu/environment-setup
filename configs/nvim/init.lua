@@ -31,7 +31,7 @@ vim.opt.rtp:prepend(lazypath)
 local plugins = {
   { "folke/which-key.nvim" },
   { "nvim-tree/nvim-web-devicons", opts = {} },
-  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+  { "nyoom-engineering/oxocarbon.nvim", priority = 1000 },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -96,7 +96,7 @@ local plugins = {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        theme = "catppuccin",
+        theme = "auto",
       },
     },
   },
@@ -120,7 +120,7 @@ local plugins = {
 
 require("lazy").setup(plugins)
 
-vim.cmd.colorscheme "catppuccin-frappe"
+vim.cmd.colorscheme "oxocarbon"
 
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })

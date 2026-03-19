@@ -127,6 +127,18 @@ install_packages_macos() {
   done
 }
 
+# ── NPM Global Tools ─────────────────────────────────────────────────────────
+
+install_npm_globals() {
+  if npm list -g tree-sitter-cli &>/dev/null; then
+    ok "tree-sitter-cli already installed"
+  else
+    info "Installing tree-sitter-cli..."
+    npm install -g tree-sitter-cli
+    ok "tree-sitter-cli installed"
+  fi
+}
+
 # ── Symlink Configs ──────────────────────────────────────────────────────────
 
 symlink() {
@@ -216,6 +228,18 @@ install_fonts() {
   ok "JetBrainsMono Nerd Font installed"
 }
 
+# ── Neovim Bootstrap ─────────────────────────────────────────────────────────
+
+setup_nvim() {
+  info "Bootstrapping Neovim plugins (lazy.nvim sync)..."
+  nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+
+  info "Installing tree-sitter parsers..."
+  nvim --headless -c "TSInstall! markdown markdown_inline" +qa 2>/dev/null || true
+
+  ok "Neovim setup complete"
+}
+
 # ── Set Default Shell ────────────────────────────────────────────────────────
 
 set_fish_default() {
@@ -256,6 +280,9 @@ main() {
     install_packages_macos
   fi
 
+  # NPM global tools
+  install_npm_globals
+
   # Symlink configs
   setup_symlinks
 
@@ -265,6 +292,9 @@ main() {
   # Plugin managers
   install_tpm
   install_omf
+
+  # Neovim bootstrap
+  setup_nvim
 
   # Default shell
   set_fish_default
