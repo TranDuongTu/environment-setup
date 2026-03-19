@@ -197,6 +197,25 @@ install_omf() {
   fi
 }
 
+# ── Fonts ────────────────────────────────────────────────────────────────────
+
+install_fonts() {
+  local font_dir="$HOME/.local/share/fonts/JetBrainsMono"
+
+  if fc-list | grep -qi "JetBrainsMono Nerd Font"; then
+    ok "JetBrainsMono Nerd Font already installed"
+    return
+  fi
+
+  info "Installing JetBrainsMono Nerd Font..."
+  mkdir -p "$font_dir"
+  curl -Lo /tmp/JetBrainsMono.zip "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+  unzip -q /tmp/JetBrainsMono.zip -d "$font_dir"
+  rm -f /tmp/JetBrainsMono.zip
+  fc-cache -fv >/dev/null
+  ok "JetBrainsMono Nerd Font installed"
+}
+
 # ── Set Default Shell ────────────────────────────────────────────────────────
 
 set_fish_default() {
@@ -240,6 +259,9 @@ main() {
   # Symlink configs
   setup_symlinks
 
+  # Fonts
+  install_fonts
+
   # Plugin managers
   install_tpm
   install_omf
@@ -253,12 +275,13 @@ main() {
   echo "=========================================="
   echo ""
   echo "Next steps:"
-  echo "  1. Open a new terminal (fish shell will be active)"
-  echo "  2. Run: tmux"
+  echo "  1. Set your terminal font to 'JetBrainsMono Nerd Font'"
+  echo "  2. Open a new terminal (fish shell will be active)"
+  echo "  3. Run: tmux"
   echo "     Then press C-b I to install tmux plugins via TPM"
-  echo "  3. Run: nvim"
+  echo "  4. Run: nvim"
   echo "     lazy.nvim will auto-install all plugins on first launch"
-  echo "  4. bobthefish theme (dracula colors) will load automatically via OMF bundle"
+  echo "  5. bobthefish theme (dracula colors) will load automatically via OMF bundle"
   echo ""
 }
 
