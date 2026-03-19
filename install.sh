@@ -190,7 +190,7 @@ install_omf() {
     ok "Oh My Fish already installed"
   else
     info "Installing Oh My Fish..."
-    curl -L https://get.oh-my.fish > /tmp/omf-install.fish
+    curl -L https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install > /tmp/omf-install.fish
     fish /tmp/omf-install.fish --noninteractive --yes
     rm -f /tmp/omf-install.fish
     ok "Oh My Fish installed"
