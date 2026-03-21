@@ -26,9 +26,6 @@ detect_os() {
 # ── Package Installation ─────────────────────────────────────────────────────
 
 install_packages_linux() {
-  info "Updating apt..."
-  sudo apt-get update -qq
-
   local packages=(
     git curl wget unzip
     build-essential cmake
@@ -37,8 +34,20 @@ install_packages_linux() {
     tmux fish
   )
 
-  info "Installing apt packages..."
-  sudo apt-get install -y -qq "${packages[@]}"
+  local missing=()
+  for pkg in "${packages[@]}"; do
+    if ! dpkg -s "$pkg" &>/dev/null; then
+      missing+=("$pkg")
+    fi
+  done
+
+  if [ ${#missing[@]} -gt 0 ]; then
+    info "Installing missing apt packages: ${missing[*]}"
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq "${missing[@]}"
+  else
+    ok "All apt packages already installed"
+  fi
 
   # Neovim — use PPA for latest stable
   if ! command_exists nvim; then
@@ -238,7 +247,7 @@ install_omf() {
 install_fonts() {
   local font_dir="$HOME/.local/share/fonts/JetBrainsMono"
 
-  if fc-list | grep -qi "JetBrainsMono Nerd Font"; then
+  if ls "$font_dir"/*.ttf &>/dev/null; then
     ok "JetBrainsMono Nerd Font already installed"
     return
   fi
@@ -255,13 +264,37 @@ install_fonts() {
 # ── Neovim Bootstrap ─────────────────────────────────────────────────────────
 
 setup_nvim() {
-  info "Bootstrapping Neovim plugins (lazy.nvim sync)..."
-  nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+  local lazy_dir="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/lazy"
 
-  info "Installing tree-sitter parsers..."
-  nvim --headless -c "TSInstall! markdown markdown_inline" +qa 2>/dev/null || true
+  if [ -d "$lazy_dir/lazy.nvim" ]; then
+    # lazy.nvim exists; check if lock file changed since last sync
+    local lock_file="$HOME/.config/nvim/lazy-lock.json"
+    local stamp_file="$lazy_dir/.last-sync-stamp"
+    if [ -f "$stamp_file" ] && [ -f "$lock_file" ] && [ "$stamp_file" -nt "$lock_file" ]; then
+      ok "Neovim plugins already synced"
+    else
+      info "Syncing Neovim plugins..."
+      nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+      touch "$stamp_file"
+      ok "Neovim plugins synced"
+    fi
+  else
+    info "Bootstrapping Neovim plugins (lazy.nvim sync)..."
+    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+    mkdir -p "$lazy_dir"
+    touch "$lazy_dir/.last-sync-stamp"
+    ok "Neovim plugins installed"
+  fi
 
-  ok "Neovim setup complete"
+  # Tree-sitter parsers — skip if parser dirs already exist
+  local parser_dir="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/lazy/nvim-treesitter/parser"
+  if [ -f "$parser_dir/markdown.so" ] && [ -f "$parser_dir/markdown_inline.so" ]; then
+    ok "Tree-sitter parsers already installed"
+  else
+    info "Installing tree-sitter parsers..."
+    nvim --headless -c "TSInstall! markdown markdown_inline" +qa 2>/dev/null || true
+    ok "Tree-sitter parsers installed"
+  fi
 }
 
 # ── Set Default Shell ────────────────────────────────────────────────────────
