@@ -29,6 +29,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
+  { "christoomey/vim-tmux-navigator" },
   { "folke/which-key.nvim" },
   { "nvim-tree/nvim-web-devicons", opts = {} },
   {
