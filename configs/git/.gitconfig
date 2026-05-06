@@ -9,3 +9,5 @@
 	name = Tu Tran
 [init]
 	defaultBranch = main
+[credential]
+	helper = store
