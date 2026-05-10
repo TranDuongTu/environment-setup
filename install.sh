@@ -172,49 +172,47 @@ install_npm_globals() {
   fi
 }
 
-# ── Symlink Configs ──────────────────────────────────────────────────────────
+# ── Copy Configs ─────────────────────────────────────────────────────────────
 
-symlink() {
+copy_file() {
   local src="$1" dest="$2"
-
-  # Create parent directory if needed
   mkdir -p "$(dirname "$dest")"
-
-  if [ -L "$dest" ]; then
-    local current_target
-    current_target="$(readlink "$dest")"
-    if [ "$current_target" = "$src" ]; then
-      ok "Symlink already correct: $dest"
-      return
-    fi
-    warn "Updating symlink: $dest (was -> $current_target)"
-    rm "$dest"
-  elif [ -e "$dest" ]; then
-    warn "Backing up existing file: $dest -> ${dest}.bak"
-    mv "$dest" "${dest}.bak"
+  if [ -f "$dest" ] && diff -q "$src" "$dest" &>/dev/null; then
+    ok "Already up-to-date: $dest"
+    return
   fi
-
-  ln -s "$src" "$dest"
-  ok "Linked: $dest -> $src"
+  if [ -f "$dest" ]; then
+    warn "Backing up: $dest -> ${dest}.bak"
+    cp "$dest" "${dest}.bak"
+  fi
+  cp "$src" "$dest"
+  ok "Copied: $dest"
 }
 
-setup_symlinks() {
-  info "Setting up config symlinks..."
+copy_dir() {
+  local src="$1" dest="$2"
+  mkdir -p "$dest"
+  cp -r "$src/." "$dest/"
+  ok "Copied: $src -> $dest"
+}
 
-  # Neovim — symlink the entire directory
-  symlink "$CONFIGS_DIR/nvim" "$HOME/.config/nvim"
+deploy_configs() {
+  info "Deploying config files..."
+
+  # Neovim
+  copy_dir "$CONFIGS_DIR/nvim" "$HOME/.config/nvim"
 
   # Tmux
-  symlink "$CONFIGS_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+  copy_file "$CONFIGS_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
-  # Fish — symlink the entire directory
-  symlink "$CONFIGS_DIR/fish" "$HOME/.config/fish"
+  # Fish
+  copy_dir "$CONFIGS_DIR/fish" "$HOME/.config/fish"
 
   # Git
-  symlink "$CONFIGS_DIR/git/.gitconfig" "$HOME/.gitconfig"
+  copy_file "$CONFIGS_DIR/git/.gitconfig" "$HOME/.gitconfig"
 
-  # Oh My Fish config (theme, bundle)
-  symlink "$CONFIGS_DIR/omf" "$HOME/.config/omf"
+  # Oh My Fish config
+  copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
 }
 
 # ── Plugin Managers ──────────────────────────────────────────────────────────
@@ -340,8 +338,8 @@ main() {
   # NPM global tools
   install_npm_globals
 
-  # Symlink configs
-  setup_symlinks
+  # Deploy configs
+  deploy_configs
 
   # Fonts
   install_fonts
