@@ -118,7 +118,7 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 **Settings:**
 - Status bar at top
 - Mouse support off
-- Pane borders show pane index and current command
+- Pane borders show pane index, pane title, and current command
 - Clipboard via `xclip` (Linux)
 - Pane switching: `C-h/j/k/l` (no prefix needed, via vim-tmux-navigator)
 
@@ -136,50 +136,72 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 
 Managed by [tmuxinator](https://github.com/tmuxinator/tmuxinator). Launch via `C-b W` in tmux (fzf picker) or from the shell with `ws`.
 
-The launcher detects existing workspace sessions and lets you switch to them directly. For new sessions it prompts for layout, repo, and AI agent.
+The launcher detects existing workspace sessions (`dev-*`, `dev-lite-*`, `ops`) and lets you switch to them directly. For new sessions it prompts for layout, then repo/folder, then agent.
 
-#### `workspace-big-screen`
+#### `dev`
 
-Best for wide monitors. Single window, three panes:
+Best for wide monitors. Window `dev-[repo]-[agent]` with three named panes:
 
 ```
-┌──────────────────┬───────────────┐
-│                  │  agent (30%)  │
-│   nvim  (70%)    │               │
-│                  │               │
-├──────────────────┴───────────────┤
-│        btop  (full width)        │
-└──────────────────────────────────┘
+┌──────────────────────┬──────────────┐
+│   dev-[repo] (nvim)  │  dev-[agent] │
+├──────────────────────┴──────────────┤
+│              dev-btop               │
+└─────────────────────────────────────┘
 ```
 
-- **Left (70%)** — Neovim, opened at the selected repo root
-- **Top-right (30%)** — AI agent (`opencode`, `claude`, or `codex`)
-- **Bottom (full width)** — `btop` system monitor
+- **Top-left (70%)** — `dev-[repo]`: Neovim at the selected repo root
+- **Top-right (30%)** — `dev-[agent]`: `opencode`, `claude`, or `codex`
+- **Bottom** — `dev-btop`: system monitor
 
-#### `workspace`
+#### `dev-lite`
 
-Three separate named windows — switch between them with `C-b n/p` or tmux-fzf (`C-b F → Window`):
+Window `dev-lite-[repo]-[agent]` with two named panes:
 
-| Window | Contents |
-|--------|----------|
-| `nvim` | Neovim at repo root |
-| `agent` | AI agent |
-| `btop` | System monitor |
+```
+┌──────────────────────┬─────────────────────┐
+│  dev-lite-[repo]     │  dev-lite-[agent]   │
+│       (nvim)         │                     │
+└──────────────────────┴─────────────────────┘
+```
+
+- **Left (50%)** — `dev-lite-[repo]`: Neovim at the selected repo root
+- **Right (50%)** — `dev-lite-[agent]`: AI agent
+
+#### `ops`
+
+Window `ops` with three panes — top half btop, bottom split 50/50:
+
+```
+┌─────────────────────────────────────┐
+│              ops-btop               │
+├──────────────────┬──────────────────┤
+│     ops-k9s      │   ops-[agent]    │
+└──────────────────┴──────────────────┘
+```
+
+- **Top** — `ops-btop`: system monitor
+- **Bottom-left** — `ops-k9s`: kubernetes TUI
+- **Bottom-right** — `ops-[agent]`: AI agent on the selected folder
 
 #### Dynamic parameters
 
-Both presets accept the repo path and agent at launch time via the fzf picker. You can also invoke them directly from the shell:
+The fzf picker prompts for layout, repo/folder, and agent. Direct invocation:
 
 ```bash
-# Using the launcher function
+# Launcher
 ws
 
 # Direct tmuxinator invocation
-WORKSPACE_REPO=~/projects/myrepo WORKSPACE_AGENT=opencode tmuxinator start workspace-big-screen
-WORKSPACE_REPO=~/projects/myrepo WORKSPACE_AGENT=claude tmuxinator start workspace
+WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
+    WORKSPACE_AGENT=opencode tmuxinator start dev
+WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
+    WORKSPACE_AGENT=claude tmuxinator start dev-lite
+WORKSPACE_FOLDER=~/projects/myrepo WORKSPACE_AGENT=opencode \
+    tmuxinator start ops
 ```
 
-Repos are picked from `~/projects/` by default. Agent choices: `opencode`, `claude`, `codex`.
+Repos/folders are picked from `~/projects/` by default. Agent choices: `opencode`, `claude`, `codex`.
 
 ---
 
@@ -239,8 +261,9 @@ configs/
 ├── tmux/
 │   └── .tmux.conf
 ├── tmuxinator/
-│   ├── workspace-big-screen.yml   # 70% nvim | 30% agent + btop
-│   └── workspace.yml              # 3 windows: nvim, agent, btop
+│   ├── dev.yml                    # nvim 70 | agent 30 + btop
+│   ├── dev-lite.yml               # nvim 50 | agent 50
+│   └── ops.yml                    # btop / k9s | agent
 ├── fish/
 │   ├── config.fish
 │   ├── fish_variables

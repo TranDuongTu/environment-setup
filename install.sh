@@ -260,9 +260,23 @@ deploy_configs() {
 
   # Tmuxinator workspace presets
   copy_dir "$CONFIGS_DIR/tmuxinator" "$HOME/.config/tmuxinator"
+  # Remove stale presets renamed in earlier versions
+  for stale in workspace.yml workspace-big-screen.yml; do
+    if [ -f "$HOME/.config/tmuxinator/$stale" ]; then
+      warn "Removing stale tmuxinator preset: $stale"
+      rm -f "$HOME/.config/tmuxinator/$stale"
+    fi
+  done
 
   # Fish
   copy_dir "$CONFIGS_DIR/fish" "$HOME/.config/fish"
+  # Remove stale fish functions renamed in earlier versions
+  for stale in _ws_big_setup.fish; do
+    if [ -f "$HOME/.config/fish/functions/$stale" ]; then
+      warn "Removing stale fish function: $stale"
+      rm -f "$HOME/.config/fish/functions/$stale"
+    fi
+  done
 
   # Git
   copy_file "$CONFIGS_DIR/git/.gitconfig" "$HOME/.gitconfig"

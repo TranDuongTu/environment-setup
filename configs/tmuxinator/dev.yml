@@ -1,0 +1,22 @@
+# dev: editor-heavy layout — 70% nvim | 30% agent on top, btop along the bottom.
+# Window: dev-[repo]-[agent]
+# Panes:  dev-[repo] (nvim)  |  dev-[agent]  /  dev-btop
+#
+# Layout:
+#   ┌──────────────────────┬──────────────┐
+#   │   dev-[repo] (nvim)  │  dev-[agent] │
+#   ├──────────────────────┴──────────────┤
+#   │              dev-btop               │
+#   └─────────────────────────────────────┘
+#
+# Launch via: prefix + W (fzf picker)
+# Or: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
+#     WORKSPACE_AGENT=opencode tmuxinator start dev
+
+name: dev-<%= ENV.fetch('WORKSPACE_REPO_NAME', 'unknown') %>-<%= ENV.fetch('WORKSPACE_AGENT', 'agent') %>
+root: <%= ENV.fetch('WORKSPACE_REPO', Dir.home) %>
+
+windows:
+  - <%= "dev-#{ENV.fetch('WORKSPACE_REPO_NAME', 'unknown')}-#{ENV.fetch('WORKSPACE_AGENT', 'agent')}" %>:
+      panes:
+        - _ws_dev_setup

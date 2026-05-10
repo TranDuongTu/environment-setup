@@ -1,0 +1,22 @@
+# ops: top half btop, bottom half split 50/50 — k9s | agent.
+# Window: ops
+# Panes:  ops-btop / ops-k9s | ops-[agent]
+#
+# Layout:
+#   ┌─────────────────────────────────────┐
+#   │              ops-btop               │
+#   ├──────────────────┬──────────────────┤
+#   │     ops-k9s      │   ops-[agent]    │
+#   └──────────────────┴──────────────────┘
+#
+# Launch via: prefix + W (fzf picker)
+# Or: WORKSPACE_FOLDER=~/projects/myrepo WORKSPACE_AGENT=opencode \
+#     tmuxinator start ops
+
+name: ops
+root: <%= ENV.fetch('WORKSPACE_FOLDER', Dir.home) %>
+
+windows:
+  - ops:
+      panes:
+        - _ws_ops_setup

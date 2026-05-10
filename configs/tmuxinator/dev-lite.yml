@@ -1,0 +1,21 @@
+# dev-lite: 2-pane layout — nvim | agent.
+# Window: dev-lite-[repo]-[agent]
+# Panes:  dev-lite-[repo] (nvim)  |  dev-lite-[agent]
+#
+# Layout:
+#   ┌──────────────────────┬─────────────────────┐
+#   │  dev-lite-[repo]     │  dev-lite-[agent]   │
+#   │       (nvim)         │                     │
+#   └──────────────────────┴─────────────────────┘
+#
+# Launch via: prefix + W (fzf picker)
+# Or: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
+#     WORKSPACE_AGENT=claude tmuxinator start dev-lite
+
+name: dev-lite-<%= ENV.fetch('WORKSPACE_REPO_NAME', 'unknown') %>-<%= ENV.fetch('WORKSPACE_AGENT', 'agent') %>
+root: <%= ENV.fetch('WORKSPACE_REPO', Dir.home) %>
+
+windows:
+  - <%= "dev-lite-#{ENV.fetch('WORKSPACE_REPO_NAME', 'unknown')}-#{ENV.fetch('WORKSPACE_AGENT', 'agent')}" %>:
+      panes:
+        - _ws_dev_lite_setup
