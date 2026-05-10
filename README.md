@@ -113,6 +113,7 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 | `tmux-plugins/tmux-cpu` | CPU usage in status bar |
 | `tmux-plugins/tmux-battery` | Battery status in status bar |
 | `christoomey/vim-tmux-navigator` | Seamless pane navigation with Neovim |
+| `sainnhe/tmux-fzf` | Fuzzy-find sessions, windows, and panes |
 
 **Settings:**
 - Status bar at top
@@ -120,6 +121,65 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 - Pane borders show pane index and current command
 - Clipboard via `xclip` (Linux)
 - Pane switching: `C-h/j/k/l` (no prefix needed, via vim-tmux-navigator)
+
+**Keybindings:**
+
+| Key | Action |
+|-----|--------|
+| `C-b r` | Reload tmux config |
+| `C-b W` | Open workspace launcher (fzf: layout → repo → agent) |
+| `C-b F` | tmux-fzf: fuzzy-find sessions, windows, panes |
+
+---
+
+### Workspace Presets (tmuxinator)
+
+Managed by [tmuxinator](https://github.com/tmuxinator/tmuxinator). Launch via `C-b W` in tmux (fzf picker) or from the shell with `ws`.
+
+The launcher detects existing workspace sessions and lets you switch to them directly. For new sessions it prompts for layout, repo, and AI agent.
+
+#### `workspace-big-screen`
+
+Best for wide monitors. Single window, three panes:
+
+```
+┌──────────────────┬───────────────┐
+│                  │  agent (30%)  │
+│   nvim  (70%)    │               │
+│                  │               │
+├──────────────────┴───────────────┤
+│        btop  (full width)        │
+└──────────────────────────────────┘
+```
+
+- **Left (70%)** — Neovim, opened at the selected repo root
+- **Top-right (30%)** — AI agent (`opencode`, `claude`, or `codex`)
+- **Bottom (full width)** — `btop` system monitor
+
+#### `workspace`
+
+Three separate named windows — switch between them with `C-b n/p` or tmux-fzf (`C-b F → Window`):
+
+| Window | Contents |
+|--------|----------|
+| `nvim` | Neovim at repo root |
+| `agent` | AI agent |
+| `btop` | System monitor |
+
+#### Dynamic parameters
+
+Both presets accept the repo path and agent at launch time via the fzf picker. You can also invoke them directly from the shell:
+
+```bash
+# Using the launcher function
+ws
+
+# Direct tmuxinator invocation
+WORKSPACE_REPO=~/projects/myrepo WORKSPACE_AGENT=opencode tmuxinator start workspace-big-screen
+WORKSPACE_REPO=~/projects/myrepo WORKSPACE_AGENT=claude tmuxinator start workspace
+```
+
+Repos are picked from `~/projects/` by default. Agent choices: `opencode`, `claude`, `codex`.
 
 ---
 
@@ -147,6 +207,7 @@ Configs are **copied** to their standard locations (not symlinked). Re-running `
 |---------------|-------------|
 | `configs/nvim/` | `~/.config/nvim/` |
 | `configs/tmux/.tmux.conf` | `~/.tmux.conf` |
+| `configs/tmuxinator/` | `~/.config/tmuxinator/` |
 | `configs/fish/` | `~/.config/fish/` |
 | `configs/omf/` | `~/.config/omf/` |
 | `configs/git/.gitconfig` | `~/.gitconfig` |
@@ -177,13 +238,18 @@ configs/
 │   └── lazy-lock.json
 ├── tmux/
 │   └── .tmux.conf
+├── tmuxinator/
+│   ├── workspace-big-screen.yml   # 70% nvim | 30% agent + btop
+│   └── workspace.yml              # 3 windows: nvim, agent, btop
 ├── fish/
 │   ├── config.fish
 │   ├── fish_variables
-│   └── conf.d/
-│       ├── omf.fish
-│       ├── fish_frozen_key_bindings.fish
-│       └── fish_frozen_theme.fish
+│   ├── conf.d/
+│   │   ├── omf.fish
+│   │   ├── fish_frozen_key_bindings.fish
+│   │   └── fish_frozen_theme.fish
+│   └── functions/
+│       └── ws.fish                # Workspace launcher (C-b W)
 ├── omf/
 │   ├── bundle
 │   ├── theme

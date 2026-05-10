@@ -1,0 +1,20 @@
+# workspace-big-screen: editor-heavy layout for big screens
+# Layout:
+#   ┌──────────────────────┬──────────────┐
+#   │                      │  agent (30%) │
+#   │     nvim  (70%)      ├──────────────┤
+#   │                      │  (not used)  │
+#   ├──────────────────────┴──────────────┤
+#   │           btop  (full width)        │
+#   └─────────────────────────────────────┘
+#
+# Launch via: prefix + W  (fzf picker)
+# Or directly: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_AGENT=opencode tmuxinator start workspace-big-screen
+
+name: workspace-big-screen
+root: <%= ENV.fetch('WORKSPACE_REPO', Dir.home) %>
+
+windows:
+  - main:
+      panes:
+        - _ws_big_setup

@@ -1,0 +1,18 @@
+# workspace: three dedicated windows — nvim, AI agent, system monitor
+#
+# Launch via: prefix + W  (fzf picker)
+# Or directly: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_AGENT=opencode tmuxinator start workspace
+
+name: workspace
+root: <%= ENV.fetch('WORKSPACE_REPO', Dir.home) %>
+
+windows:
+  - nvim:
+      panes:
+        - nvim .
+  - agent:
+      panes:
+        - <%= ENV.fetch('WORKSPACE_AGENT', 'opencode') %>
+  - btop:
+      panes:
+        - btop

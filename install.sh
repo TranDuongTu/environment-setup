@@ -96,6 +96,14 @@ install_packages_linux() {
     ok "Node.js already installed"
   fi
 
+  # Ruby (required for tmuxinator)
+  if ! command_exists ruby; then
+    info "Installing Ruby..."
+    sudo apt-get install -y -qq ruby-full
+  else
+    ok "Ruby already installed"
+  fi
+
   # kubectl
   if ! command_exists kubectl; then
     info "Installing kubectl..."
@@ -148,6 +156,7 @@ install_packages_macos() {
     node go python3
     cmake
     kubectl k9s
+    ruby tmuxinator
   )
 
   info "Installing Homebrew packages..."
@@ -219,6 +228,9 @@ deploy_configs() {
   # Tmux
   copy_file "$CONFIGS_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
+  # Tmuxinator workspace presets
+  copy_dir "$CONFIGS_DIR/tmuxinator" "$HOME/.config/tmuxinator"
+
   # Fish
   copy_dir "$CONFIGS_DIR/fish" "$HOME/.config/fish"
 
@@ -227,6 +239,22 @@ deploy_configs() {
 
   # Oh My Fish config
   copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
+}
+
+# ── tmuxinator ───────────────────────────────────────────────────────────────
+
+install_tmuxinator() {
+  if command_exists tmuxinator; then
+    ok "tmuxinator already installed"
+    return
+  fi
+  info "Installing tmuxinator..."
+  if [ "$OS" = "macos" ]; then
+    brew install tmuxinator
+  else
+    sudo gem install tmuxinator --no-document
+  fi
+  ok "tmuxinator installed"
 }
 
 # ── Plugin Managers ──────────────────────────────────────────────────────────
@@ -361,6 +389,7 @@ main() {
   # Plugin managers
   install_tpm
   install_omf
+  install_tmuxinator
 
   # Neovim bootstrap
   setup_nvim
