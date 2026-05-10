@@ -40,5 +40,10 @@ function ws --description "Launch or switch to a tmuxinator workspace (fzf picke
 
     set -x WORKSPACE_REPO $repo
     set -x WORKSPACE_AGENT $agent
+    # Propagate to tmux server env so panes in the new session see them
+    if set -q TMUX
+        tmux set-environment -g WORKSPACE_REPO $repo
+        tmux set-environment -g WORKSPACE_AGENT $agent
+    end
     tmuxinator start $layout
 end
