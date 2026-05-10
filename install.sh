@@ -191,6 +191,11 @@ copy_file() {
     warn "Removing dangling symlink: $dest"
     rm "$dest"
   fi
+  # Break any symlink or hardlink to the repo so writes never bleed back
+  if [ -L "$dest" ] || { [ -e "$dest" ] && [ "$(stat -c %i "$src")" = "$(stat -c %i "$dest")" ]; }; then
+    warn "Breaking link to repo: $dest"
+    rm -f "$dest"
+  fi
   if [ -f "$dest" ] && diff -q "$src" "$dest" &>/dev/null; then
     ok "Already up-to-date: $dest"
     return
@@ -199,7 +204,7 @@ copy_file() {
     warn "Backing up: $dest -> ${dest}.bak"
     cp "$dest" "${dest}.bak"
   fi
-  cp "$src" "$dest"
+  cp --remove-destination "$src" "$dest"
   ok "Copied: $dest"
 }
 
@@ -210,12 +215,27 @@ copy_dir() {
     warn "Removing dangling symlink: $dest"
     rm "$dest"
   fi
+  # If dest itself is a symlink to repo, break it
+  if [ -L "$dest" ]; then
+    warn "Breaking symlink dir to repo: $dest"
+    rm -f "$dest"
+  fi
   mkdir -p "$dest"
+  # Break per-file hardlinks back to repo before any diff/copy
+  local f rel destf
+  while IFS= read -r -d '' f; do
+    rel="${f#"$src"/}"
+    destf="$dest/$rel"
+    if [ -e "$destf" ] && [ ! -L "$destf" ] && [ "$(stat -c %i "$f")" = "$(stat -c %i "$destf")" ]; then
+      warn "Breaking hardlink to repo: $destf"
+      rm -f "$destf"
+    fi
+  done < <(find "$src" -type f -print0)
   if diff -rq "$src" "$dest" &>/dev/null; then
     ok "Already up-to-date: $dest"
     return
   fi
-  cp -r "$src/." "$dest/"
+  cp -r --remove-destination "$src/." "$dest/"
   ok "Copied: $src -> $dest"
 }
 
