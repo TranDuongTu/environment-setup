@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Refuse to run as root — script invokes sudo internally where needed.
+# Running the whole script under sudo deploys configs to root's HOME
+# and chsh-es the wrong user.
+if [ "$(id -u)" -eq 0 ]; then
+  echo "Error: do not run this script as root or with sudo." >&2
+  echo "Run as your normal user — the script will sudo internally for apt, /etc/shells, and /usr/local/bin." >&2
+  echo "  ./install.sh" >&2
+  exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIGS_DIR="$SCRIPT_DIR/configs"
 
