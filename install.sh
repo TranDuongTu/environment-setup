@@ -177,6 +177,11 @@ install_npm_globals() {
 copy_file() {
   local src="$1" dest="$2"
   mkdir -p "$(dirname "$dest")"
+  # Remove a dangling symlink so cp can write a real file
+  if [ -L "$dest" ] && [ ! -e "$dest" ]; then
+    warn "Removing dangling symlink: $dest"
+    rm "$dest"
+  fi
   if [ -f "$dest" ] && diff -q "$src" "$dest" &>/dev/null; then
     ok "Already up-to-date: $dest"
     return
@@ -191,7 +196,16 @@ copy_file() {
 
 copy_dir() {
   local src="$1" dest="$2"
+  # Remove a dangling symlink so mkdir -p can create a real directory
+  if [ -L "$dest" ] && [ ! -e "$dest" ]; then
+    warn "Removing dangling symlink: $dest"
+    rm "$dest"
+  fi
   mkdir -p "$dest"
+  if diff -rq "$src" "$dest" &>/dev/null; then
+    ok "Already up-to-date: $dest"
+    return
+  fi
   cp -r "$src/." "$dest/"
   ok "Copied: $src -> $dest"
 }
@@ -245,7 +259,7 @@ install_omf() {
 install_fonts() {
   local font_dir="$HOME/.local/share/fonts/JetBrainsMono"
 
-  if ls "$font_dir"/*.ttf &>/dev/null; then
+  if [ -d "$font_dir" ] && [ -n "$(ls -A "$font_dir" 2>/dev/null)" ]; then
     ok "JetBrainsMono Nerd Font already installed"
     return
   fi
