@@ -1,6 +1,6 @@
 function ws --description "Launch or switch to a tmuxinator workspace (fzf picker)"
-    # If session already exists, switch directly without prompting
-    set -l existing (tmux list-sessions -F "#S" 2>/dev/null | grep -E "^(dev-|ops\$)")
+    # If session already exists, offer to switch directly (Esc to create new)
+    set -l existing (tmux list-sessions -F "#S" 2>/dev/null | grep -E "^(dev-|ops)")
     if test -n "$existing"
         set -l target (echo $existing | tr ' ' '\n' | fzf \
             --prompt="Switch to > " \
@@ -41,13 +41,16 @@ function ws --description "Launch or switch to a tmuxinator workspace (fzf picke
             --header="Select AI agent")
         test -z "$agent"; and return
 
+        set -l session_name (_ws_unique_session "ops")
+        test -z "$session_name"; and return
+
         set -x WORKSPACE_FOLDER $folder
         set -x WORKSPACE_AGENT $agent
         if set -q TMUX
             tmux set-environment -g WORKSPACE_FOLDER $folder
             tmux set-environment -g WORKSPACE_AGENT $agent
         end
-        tmuxinator start ops
+        tmuxinator start ops --name=$session_name
         return
     end
 
@@ -68,6 +71,10 @@ function ws --description "Launch or switch to a tmuxinator workspace (fzf picke
     test -z "$agent"; and return
 
     set -l repo_name (basename $repo)
+    set -l base_name "$layout-$repo_name-$agent"
+    set -l session_name (_ws_unique_session $base_name)
+    test -z "$session_name"; and return
+
     set -x WORKSPACE_REPO $repo
     set -x WORKSPACE_REPO_NAME $repo_name
     set -x WORKSPACE_AGENT $agent
@@ -76,5 +83,5 @@ function ws --description "Launch or switch to a tmuxinator workspace (fzf picke
         tmux set-environment -g WORKSPACE_REPO_NAME $repo_name
         tmux set-environment -g WORKSPACE_AGENT $agent
     end
-    tmuxinator start $layout
+    tmuxinator start $layout --name=$session_name
 end

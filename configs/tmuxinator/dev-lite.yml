@@ -8,9 +8,9 @@
 #   │       (nvim)         │                     │
 #   └──────────────────────┴─────────────────────┘
 #
-# Launch via: prefix + W (fzf picker)
-# Or: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
-#     WORKSPACE_AGENT=claude tmuxinator start dev-lite
+# Launch via: prefix + W (fzf picker). Picker calls `tmuxinator start dev-lite --name=<unique>`.
+# Raw: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
+#      WORKSPACE_AGENT=claude tmuxinator start dev-lite --name=dev-lite-myrepo-claude
 
 name: dev-lite-<%= ENV.fetch('WORKSPACE_REPO_NAME', 'unknown') %>-<%= ENV.fetch('WORKSPACE_AGENT', 'agent') %>
 root: <%= ENV.fetch('WORKSPACE_REPO', Dir.home) %>

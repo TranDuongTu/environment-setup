@@ -1,5 +1,5 @@
 # dev: editor-heavy layout — 70% nvim | 30% agent on top, btop along the bottom.
-# Window: dev-[repo]-[agent]
+# Session: dev-[repo]-[agent] (suffix appended on collision via ws picker)
 # Panes:  dev-[repo] (nvim)  |  dev-[agent]  /  dev-btop
 #
 # Layout:
@@ -9,9 +9,9 @@
 #   │              dev-btop               │
 #   └─────────────────────────────────────┘
 #
-# Launch via: prefix + W (fzf picker)
-# Or: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
-#     WORKSPACE_AGENT=opencode tmuxinator start dev
+# Launch via: prefix + W (fzf picker). Picker calls `tmuxinator start dev --name=<unique>`.
+# Raw: WORKSPACE_REPO=~/projects/myrepo WORKSPACE_REPO_NAME=myrepo \
+#      WORKSPACE_AGENT=opencode tmuxinator start dev --name=dev-myrepo-opencode
 
 name: dev-<%= ENV.fetch('WORKSPACE_REPO_NAME', 'unknown') %>-<%= ENV.fetch('WORKSPACE_AGENT', 'agent') %>
 root: <%= ENV.fetch('WORKSPACE_REPO', Dir.home) %>

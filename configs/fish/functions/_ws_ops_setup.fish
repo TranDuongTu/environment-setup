@@ -5,16 +5,20 @@ function _ws_ops_setup --description "Internal: build ops pane layout (btop top,
     test -z "$agent"; and set agent "opencode"
 
     set -l win (tmux display-message -p "#{session_name}:#{window_index}")
+    set -l btop_pane (tmux display-message -p -t "$win.0" '#{pane_id}')
 
-    # Pane 1: bottom half — k9s
-    tmux split-window -v -l '50%' -t "$win.0" -c "$folder" "k9s"
-    tmux select-pane -t "$win.1" -T "ops-k9s"
+    # bottom half — k9s
+    set -l k9s_pane (tmux split-window -v -l '50%' -t "$btop_pane" -c "$folder" -P -F '#{pane_id}' "k9s")
+    tmux set-option -p -t "$k9s_pane" @role "ops-k9s"
+    tmux select-pane -t "$k9s_pane" -T "ops-k9s"
 
-    # Pane 2: split bottom horizontally — agent on the right
-    tmux split-window -h -l '50%' -t "$win.1" -c "$folder" $agent
-    tmux select-pane -t "$win.2" -T "ops-$agent"
+    # split bottom horizontally — agent on the right
+    set -l agent_pane (tmux split-window -h -l '50%' -t "$k9s_pane" -c "$folder" -P -F '#{pane_id}' $agent)
+    tmux set-option -p -t "$agent_pane" @role "ops-$agent"
+    tmux select-pane -t "$agent_pane" -T "ops-$agent"
 
-    # Pane 0: btop — focus and replace this fish process
-    tmux select-pane -t "$win.0" -T "ops-btop"
+    # btop — focus and replace this fish process
+    tmux set-option -p -t "$btop_pane" @role "ops-btop"
+    tmux select-pane -t "$btop_pane" -T "ops-btop"
     exec btop
 end
