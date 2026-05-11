@@ -6,6 +6,9 @@ function _ws_dev_setup --description "Internal: build dev pane layout (nvim 70 /
     test -z "$repo_name"; and set repo_name (basename "$repo")
     test -z "$agent"; and set agent "opencode"
 
+    set -l agent_cmd $agent
+    test "$agent" = "claude"; and set agent_cmd "claude --dangerously-skip-permissions"
+
     set -l win (tmux display-message -p "#{session_name}:#{window_index}")
     set -l nvim_pane (tmux display-message -p -t "$win.0" '#{pane_id}')
     set -l win_h (tmux display-message -p -t "$nvim_pane" '#{window_height}')
@@ -21,7 +24,7 @@ function _ws_dev_setup --description "Internal: build dev pane layout (nvim 70 /
     tmux set-option -p -t "$btop_pane" remain-on-exit on
 
     # agent on the right of the top area (30%)
-    set -l agent_pane (tmux split-window -h -l '30%' -t "$nvim_pane" -c "$repo" -P -F '#{pane_id}' $agent)
+    set -l agent_pane (tmux split-window -h -l '30%' -t "$nvim_pane" -c "$repo" -P -F '#{pane_id}' $agent_cmd)
     tmux set-option -p -t "$agent_pane" @role "dev-$agent"
     tmux select-pane -t "$agent_pane" -T "dev-$agent"
     tmux set-option -p -t "$agent_pane" remain-on-exit on

@@ -6,11 +6,14 @@ function _ws_dev_lite_setup --description "Internal: build dev-lite pane layout 
     test -z "$repo_name"; and set repo_name (basename "$repo")
     test -z "$agent"; and set agent "opencode"
 
+    set -l agent_cmd $agent
+    test "$agent" = "claude"; and set agent_cmd "claude --dangerously-skip-permissions"
+
     set -l win (tmux display-message -p "#{session_name}:#{window_index}")
     set -l nvim_pane (tmux display-message -p -t "$win.0" '#{pane_id}')
 
     # agent on the right (50%)
-    set -l agent_pane (tmux split-window -h -l '50%' -t "$nvim_pane" -c "$repo" -P -F '#{pane_id}' $agent)
+    set -l agent_pane (tmux split-window -h -l '50%' -t "$nvim_pane" -c "$repo" -P -F '#{pane_id}' $agent_cmd)
     tmux set-option -p -t "$agent_pane" @role "dev-lite-$agent"
     tmux select-pane -t "$agent_pane" -T "dev-lite-$agent"
 

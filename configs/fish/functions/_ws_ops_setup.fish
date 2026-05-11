@@ -4,6 +4,9 @@ function _ws_ops_setup --description "Internal: build ops pane layout (btop top,
     test -z "$folder"; and set folder $HOME
     test -z "$agent"; and set agent "opencode"
 
+    set -l agent_cmd $agent
+    test "$agent" = "claude"; and set agent_cmd "claude --dangerously-skip-permissions"
+
     set -l win (tmux display-message -p "#{session_name}:#{window_index}")
     set -l btop_pane (tmux display-message -p -t "$win.0" '#{pane_id}')
 
@@ -13,7 +16,7 @@ function _ws_ops_setup --description "Internal: build ops pane layout (btop top,
     tmux select-pane -t "$k9s_pane" -T "ops-k9s"
 
     # split bottom horizontally — agent on the right
-    set -l agent_pane (tmux split-window -h -l '50%' -t "$k9s_pane" -c "$folder" -P -F '#{pane_id}' $agent)
+    set -l agent_pane (tmux split-window -h -l '50%' -t "$k9s_pane" -c "$folder" -P -F '#{pane_id}' $agent_cmd)
     tmux set-option -p -t "$agent_pane" @role "ops-$agent"
     tmux select-pane -t "$agent_pane" -T "ops-$agent"
 
