@@ -6,6 +6,7 @@ function _ws_ops_setup --description "Internal: build ops pane layout (btop top,
 
     set -l agent_cmd $agent
     test "$agent" = "claude"; and set agent_cmd "claude --dangerously-skip-permissions"
+    test "$agent" = "opencode"; and set agent_cmd "env EDITOR=nvim opencode"
 
     set -l win (tmux display-message -p "#{session_name}:#{window_index}")
     set -l btop_pane (tmux display-message -p -t "$win.0" '#{pane_id}')

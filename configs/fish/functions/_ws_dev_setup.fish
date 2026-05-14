@@ -8,6 +8,7 @@ function _ws_dev_setup --description "Internal: build dev pane layout (nvim 70 /
 
     set -l agent_cmd $agent
     test "$agent" = "claude"; and set agent_cmd "claude --dangerously-skip-permissions"
+    test "$agent" = "opencode"; and set agent_cmd "env EDITOR=nvim opencode"
 
     set -l win (tmux display-message -p "#{session_name}:#{window_index}")
     set -l nvim_pane (tmux display-message -p -t "$win.0" '#{pane_id}')
