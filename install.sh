@@ -40,7 +40,7 @@ install_packages_linux() {
     git curl wget unzip
     build-essential cmake
     ripgrep fzf xclip
-    python3 python3-pip
+    python3 python3-pip python3-venv
     tmux fish
   )
 

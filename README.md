@@ -70,7 +70,7 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) (auto-bootstrapp
 | Plugin | Purpose |
 |--------|---------|
 | `folke/tokyonight.nvim` | Colorscheme (night style) |
-| `nvim-treesitter/nvim-treesitter` | Syntax highlighting (parsers: lua, vim, json, bash, markdown, markdown_inline) |
+| `nvim-treesitter/nvim-treesitter` | Syntax highlighting (parsers: lua, vim, json, bash, markdown, markdown_inline, python) |
 | `nvim-telescope/telescope.nvim` + `telescope-fzf-native.nvim` | Fuzzy finder |
 | `nvim-neo-tree/neo-tree.nvim` (v3.x) | File explorer |
 | `lewis6991/gitsigns.nvim` | Git diff signs in gutter |
@@ -83,6 +83,15 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) (auto-bootstrapp
 | `folke/which-key.nvim` | Keymap hint popup |
 | `nvim-tree/nvim-web-devicons` | File icons |
 | `christoomey/vim-tmux-navigator` | Seamless pane navigation with tmux |
+| `williamboman/mason.nvim` | LSP/DAP server installer (`:Mason` UI) |
+| `williamboman/mason-lspconfig.nvim` | Auto-installs `pyright` and `ruff` via Mason |
+| `jay-babu/mason-nvim-dap.nvim` | Auto-installs `debugpy` via Mason |
+| `neovim/nvim-lspconfig` | LSP client — Pyright (types/navigation) + Ruff (lint/format) |
+| `hrsh7th/nvim-cmp` + sources | Completion engine (LSP, buffer, path, snippets) |
+| `L3MON4D3/LuaSnip` | Snippet engine |
+| `mfussenegger/nvim-dap` | Debug adapter protocol client |
+| `mfussenegger/nvim-dap-python` | Python debug adapter (uses debugpy) |
+| `rcarriga/nvim-dap-ui` | Debug UI (auto-opens on session start) |
 
 **Keybindings** (leader = `\`):
 
@@ -100,6 +109,27 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) (auto-bootstrapp
 | `\gh` | Current file history (Diffview) |
 | `\gn` | Open Neogit |
 | `C-\` | Toggle floating terminal |
+| `gd` | LSP: go to definition |
+| `gD` | LSP: go to declaration |
+| `gi` | LSP: go to implementation |
+| `gr` | LSP: find references (Telescope) |
+| `K` | LSP: hover docs / type signature |
+| `\rn` | LSP: rename symbol (workspace-wide) |
+| `\ca` | LSP: code action (auto-fix, imports…) |
+| `\ds` | LSP: document symbols (Telescope) |
+| `\ws` | LSP: workspace symbols (Telescope) |
+| `\xl` | LSP: diagnostics list (Telescope) |
+| `\xd` | LSP: show diagnostic float |
+| `\f` | Ruff: format buffer |
+| `]d` / `[d` | LSP: next / prev diagnostic |
+| `<F5>` / `\dc` | Debug: start / continue |
+| `<F9>` / `\db` | Debug: toggle breakpoint |
+| `<F10>` | Debug: step over |
+| `<F11>` | Debug: step into |
+| `<F12>` | Debug: step out |
+| `\du` | Debug: toggle UI panels |
+| `\dr` | Debug: open REPL |
+| `\dq` | Debug: terminate session |
 
 ---
 
