@@ -202,7 +202,7 @@ copy_file() {
     rm "$dest"
   fi
   # Break any symlink or hardlink to the repo so writes never bleed back
-  if [ -L "$dest" ] || { [ -e "$dest" ] && [ "$(stat -c %i "$src")" = "$(stat -c %i "$dest")" ]; }; then
+  if [ -L "$dest" ] || { [ -e "$dest" ] && [ "$(ls -i "$src" | awk '{print $1}')" = "$(ls -i "$dest" | awk '{print $1}')" ]; }; then
     warn "Breaking link to repo: $dest"
     rm -f "$dest"
   fi
@@ -214,7 +214,7 @@ copy_file() {
     warn "Backing up: $dest -> ${dest}.bak"
     cp "$dest" "${dest}.bak"
   fi
-  cp --remove-destination "$src" "$dest"
+  rm -f "$dest" && cp "$src" "$dest"
   ok "Copied: $dest"
 }
 
@@ -236,7 +236,7 @@ copy_dir() {
   while IFS= read -r -d '' f; do
     rel="${f#"$src"/}"
     destf="$dest/$rel"
-    if [ -e "$destf" ] && [ ! -L "$destf" ] && [ "$(stat -c %i "$f")" = "$(stat -c %i "$destf")" ]; then
+    if [ -e "$destf" ] && [ ! -L "$destf" ] && [ "$(ls -i "$f" | awk '{print $1}')" = "$(ls -i "$destf" | awk '{print $1}')" ]; then
       warn "Breaking hardlink to repo: $destf"
       rm -f "$destf"
     fi
@@ -245,7 +245,7 @@ copy_dir() {
     ok "Already up-to-date: $dest"
     return
   fi
-  cp -r --remove-destination "$src/." "$dest/"
+  cp -rf "$src/." "$dest/"
   ok "Copied: $src -> $dest"
 }
 
@@ -329,7 +329,12 @@ install_omf() {
 # ── Fonts ────────────────────────────────────────────────────────────────────
 
 install_fonts() {
-  local font_dir="$HOME/.local/share/fonts/JetBrainsMono"
+  local font_dir
+  if [ "$OS" = "macos" ]; then
+    font_dir="$HOME/Library/Fonts/JetBrainsMono"
+  else
+    font_dir="$HOME/.local/share/fonts/JetBrainsMono"
+  fi
 
   if [ -d "$font_dir" ] && [ -n "$(ls -A "$font_dir" 2>/dev/null)" ]; then
     ok "JetBrainsMono Nerd Font already installed"
@@ -341,7 +346,9 @@ install_fonts() {
   curl -Lo /tmp/JetBrainsMono.zip "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
   unzip -q /tmp/JetBrainsMono.zip -d "$font_dir"
   rm -f /tmp/JetBrainsMono.zip
-  fc-cache -fv >/dev/null
+  if [ "$OS" != "macos" ]; then
+    fc-cache -fv >/dev/null
+  fi
   ok "JetBrainsMono Nerd Font installed"
 }
 
