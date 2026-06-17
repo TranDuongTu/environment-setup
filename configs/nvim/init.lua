@@ -54,7 +54,7 @@ local plugins = {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     opts = {
-      ensure_installed = { "lua", "vim", "json", "bash", "markdown", "markdown_inline", "python" },
+      ensure_installed = { "lua", "vim", "json", "bash", "markdown", "markdown_inline", "python", "go" },
       auto_install = true,
       highlight = { enable = true },
     },
@@ -152,7 +152,7 @@ local plugins = {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "pyright", "ruff" },
+      ensure_installed = { "pyright", "ruff", "gopls" },
       automatic_enable = true,  -- calls vim.lsp.enable() for each installed server
     },
   },
@@ -162,7 +162,7 @@ local plugins = {
     "jay-babu/mason-nvim-dap.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "debugpy" },
+      ensure_installed = { "debugpy", "delve" },
     },
   },
 
@@ -246,6 +246,53 @@ local plugins = {
             end,
           })
         end,
+      })
+
+      -- gopls: navigation, refactoring, formatting, imports, test code lens
+      vim.lsp.config("gopls", {
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          on_attach(client, bufnr)
+          vim.keymap.set("n", "<leader>gf", function()
+            vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = true })
+          end, { buffer = bufnr, desc = "gopls: format buffer" })
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.code_action({
+                context = { only = { "source.organizeImports" } },
+                apply = true,
+              })
+              vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = false })
+            end,
+          })
+        end,
+        settings = {
+          gopls = {
+            gofumpt = true,
+            staticcheck = true,
+            analyses = {
+              unusedparams = true,
+              unusedvariable = true,
+              unreachable = true,
+              shadow = true,
+            },
+            hints = {
+              assignVariableTypes = true,
+              compositeLiteralFields = true,
+              compositeLiteralTypes = true,
+              constantValues = true,
+              functionTypeParameters = true,
+              parameterNames = true,
+              rangeVariableTypes = true,
+            },
+            codelenses = {
+              test = true,
+              tidy = true,
+              vendor = true,
+            },
+          },
+        },
       })
 
       vim.diagnostic.config({
@@ -344,6 +391,13 @@ local plugins = {
           require("dap-python").setup(
             vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
           )
+        end,
+      },
+      {
+        "leoluz/nvim-dap-go",
+        dependencies = { "mfussenegger/nvim-dap" },
+        config = function()
+          require("dap-go").setup()
         end,
       },
     },
