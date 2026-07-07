@@ -161,7 +161,7 @@ install_packages_macos() {
   fi
 
   local packages=(
-    neovim tmux fish git gh lazygit wezterm
+    neovim tmux fish git gh lazygit
     ripgrep fzf
     node go python3
     cmake
@@ -307,27 +307,72 @@ install_tmuxinator() {
 # ── WezTerm ──────────────────────────────────────────────────────────────────
 
 install_wezterm() {
-  if command_exists wezterm; then
-    ok "wezterm already installed"
-    return
-  fi
-
   if [ "$OS" = "macos" ]; then
-    # macOS install is handled by the Homebrew packages array in
-    # install_packages_macos. This branch should not be reached because
-    # brew installs wezterm before this function runs, but guard anyway.
-    info "Installing wezterm via Homebrew..."
-    brew install wezterm
-    ok "wezterm installed"
+    # macOS: use the official Homebrew cask `wezterm@nightly` (per upstream
+    # docs at wezterm.org/install/macos). The cask was renamed from
+    # `wezterm-nightly`, so migrate if the old name is installed.
+    # `wezterm` is NOT a brew formula — it only ships as a cask, which is
+    # why it was removed from the packages array above.
+
+    # 1. Migrate old cask name → new cask name if needed.
+    if brew list --cask wezterm-nightly &>/dev/null; then
+      info "Migrating old 'wezterm-nightly' cask → 'wezterm@nightly'..."
+      brew uninstall --cask wezterm-nightly
+      ok "Old cask uninstalled"
+    fi
+
+    # 2. Install the cask if missing, else upgrade. Regular `brew upgrade`
+    #    will not upgrade casks that auto-update, so --greedy-latest is
+    #    required to actually pull a new nightly on re-runs.
+    if brew list --cask wezterm@nightly &>/dev/null; then
+      info "Upgrading wezterm@nightly cask..."
+      brew upgrade --cask wezterm@nightly --no-quarantine --greedy-latest \
+        && ok "wezterm@nightly upgraded" \
+        || ok "wezterm@nightly already up-to-date"
+    else
+      info "Installing wezterm@nightly cask..."
+      brew install --cask wezterm@nightly
+      ok "wezterm@nightly installed"
+    fi
     return
   fi
 
-  info "Installing wezterm..."
-  WEZTERM_VERSION=$(curl -sL https://api.github.com/repositories/120568143/releases/latest | grep -Po '"tag_name":\s*"\K[^"]*')
-  curl -sLo /tmp/wezterm.deb "https://github.com/wez/wezterm/releases/download/${WEZTERM_VERSION}/wezterm-${WEZTERM_VERSION}.Ubuntu22.04.deb"
-  sudo dpkg -i /tmp/wezterm.deb || sudo apt-get install -f -y -qq
-  rm -f /tmp/wezterm.deb
-  ok "wezterm installed"
+  # Linux: use the official wezterm APT nightly repo (apt.fury.io/wez).
+  # Nightly builds include Wayland fixes that the last stable release
+  # (Feb 2024) lacks — e.g. mutter dropping maximize state on borderless
+  # windows after focus changes. Flathub only carries stable and runs in
+  # a sandbox, so it is not suitable for power users (per upstream docs).
+  local keyring="/usr/share/keyrings/wezterm-fury.gpg"
+  local list_file="/etc/apt/sources.list.d/wezterm.list"
+
+  # 1. Configure the APT repo (idempotent)
+  if [ ! -f "$keyring" ] || [ ! -f "$list_file" ]; then
+    info "Configuring wezterm APT nightly repo..."
+    curl -fsSL https://apt.fury.io/wez/gpg.key \
+      | sudo gpg --yes --dearmor -o "$keyring"
+    echo "deb [signed-by=$keyring] https://apt.fury.io/wez/ * *" \
+      | sudo tee "$list_file" >/dev/null
+    sudo chmod 644 "$keyring"
+    sudo apt-get update -qq
+    ok "wezterm APT nightly repo configured"
+  else
+    ok "wezterm APT nightly repo already configured"
+  fi
+
+  # 2. Migrate away from the old standalone .deb (which installs a
+  #    `wezterm` package that conflicts with `wezterm-nightly`).
+  if dpkg -s wezterm &>/dev/null && ! dpkg -s wezterm-nightly &>/dev/null; then
+    info "Removing old standalone wezterm package (migrating to nightly)..."
+    sudo apt-get remove -y -qq wezterm
+    ok "Old wezterm package removed"
+  fi
+
+  # 3. Install or upgrade wezterm-nightly. `apt-get install` is idempotent:
+  #    it installs if absent, upgrades if a newer nightly is available, or
+  #    no-ops (with "already the newest version") if current.
+  info "Ensuring wezterm-nightly is installed and up-to-date..."
+  sudo apt-get install -y -qq wezterm-nightly
+  ok "wezterm-nightly installed ($(wezterm --version 2>/dev/null || echo 'version unknown'))"
 }
 
 # ── Plugin Managers ──────────────────────────────────────────────────────────

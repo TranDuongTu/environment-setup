@@ -1,7 +1,8 @@
 local wezterm = require('wezterm')
 local config = wezterm.config_builder()
 
--- Appearance: fully borderless
+-- Appearance: fully borderless. Use Super+Up to maximize; GNOME may lose the
+-- maximized state on focus changes but the clean look is preferred.
 config.window_decorations = 'NONE'
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 
@@ -9,12 +10,36 @@ config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 config.font = wezterm.font('JetBrainsMono Nerd Font')
 config.font_size = 13.0
 
--- Color scheme: built-in WezTerm scheme, matches OMF bobthefish dracula
-config.color_scheme = 'Dracula'
+-- Color scheme: Rose Pine (https://github.com/neapsix/wezterm).
+-- Per the plugin docs, `color_scheme` must NOT be set — it overrides the
+-- custom `colors` table that the theme provides (including tab bar colors).
+-- Variants: .main (dark), .moon (warmer dark), .dawn (light).
+local theme = wezterm.plugin.require('https://github.com/neapsix/wezterm').main
+config.colors = theme.colors()
 
--- Tab bar: hidden when only one tab; thin text strip when multiple
+-- Status/tab bar: bar.wezterm (https://github.com/adriankarlen/bar.wezterm)
+-- Must be required AFTER colors are set so it can pick them up.
+-- Bottom position; tmux status bar (trimmed to session+battery) stays on top.
+-- Modules: cwd disabled (tmux's pane-border-format shows it per-pane since
+-- tmux doesn't forward OSC 7 to wezterm); zoom enabled for tmux C-b z awareness;
+-- username/hostname/clock explicitly enabled (defaults are on, but pin them
+-- for clarity); spotify disabled (spotify-tui not installed).
+local bar = wezterm.plugin.require('https://github.com/adriankarlen/bar.wezterm')
+bar.apply_to_config(config, {
+  modules = {
+    cwd = { enabled = false },
+    zoom = { enabled = true },
+    username = { enabled = true },
+    hostname = { enabled = true },
+    clock = { enabled = true },
+    spotify = { enabled = false },
+  },
+})
+
+-- Tab bar: bar.wezterm styles the retro tab bar, so it must stay visible
+-- even with a single tab (otherwise the status strip disappears).
 config.enable_tab_bar = true
-config.hide_tab_bar_if_only_one_tab = true
+config.hide_tab_bar_if_only_one_tab = false
 config.use_fancy_tab_bar = false
 
 -- Keys: compensate for missing window chrome and invisible tab bar
