@@ -161,7 +161,7 @@ install_packages_macos() {
   fi
 
   local packages=(
-    neovim tmux fish git gh lazygit
+    neovim tmux fish git gh lazygit wezterm
     ripgrep fzf
     node go python3
     cmake
@@ -281,6 +281,9 @@ deploy_configs() {
   # Git
   copy_file "$CONFIGS_DIR/git/.gitconfig" "$HOME/.gitconfig"
 
+  # WezTerm
+  copy_dir "$CONFIGS_DIR/wezterm" "$HOME/.config/wezterm"
+
   # Oh My Fish config
   copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
 }
@@ -299,6 +302,32 @@ install_tmuxinator() {
     sudo gem install tmuxinator --no-document
   fi
   ok "tmuxinator installed"
+}
+
+# ── WezTerm ──────────────────────────────────────────────────────────────────
+
+install_wezterm() {
+  if command_exists wezterm; then
+    ok "wezterm already installed"
+    return
+  fi
+
+  if [ "$OS" = "macos" ]; then
+    # macOS install is handled by the Homebrew packages array in
+    # install_packages_macos. This branch should not be reached because
+    # brew installs wezterm before this function runs, but guard anyway.
+    info "Installing wezterm via Homebrew..."
+    brew install wezterm
+    ok "wezterm installed"
+    return
+  fi
+
+  info "Installing wezterm..."
+  WEZTERM_VERSION=$(curl -sL https://api.github.com/repositories/120568143/releases/latest | grep -Po '"tag_name":\s*"\K[^"]*')
+  curl -sLo /tmp/wezterm.deb "https://github.com/wez/wezterm/releases/download/${WEZTERM_VERSION}/wezterm-${WEZTERM_VERSION}.Ubuntu22.04.deb"
+  sudo dpkg -i /tmp/wezterm.deb || sudo apt-get install -f -y -qq
+  rm -f /tmp/wezterm.deb
+  ok "wezterm installed"
 }
 
 # ── Plugin Managers ──────────────────────────────────────────────────────────
@@ -441,6 +470,7 @@ main() {
   install_tpm
   install_omf
   install_tmuxinator
+  install_wezterm
 
   # Neovim bootstrap
   setup_nvim
@@ -461,6 +491,7 @@ main() {
   echo "  4. Run: nvim"
   echo "     lazy.nvim will auto-install all plugins on first launch"
   echo "  5. bobthefish theme (dracula colors) will load automatically via OMF bundle"
+  echo "  6. Run: wezterm  (borderless terminal — try Ctrl+Shift+T for a new tab)"
   echo ""
 }
 
