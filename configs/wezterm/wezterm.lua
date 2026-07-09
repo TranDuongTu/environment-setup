@@ -42,6 +42,27 @@ config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = false
 config.use_fancy_tab_bar = false
 
+-- Scroll: default is 3 lines per wheel tick, which feels too fast.
+-- Reduce to 1 line per tick. WezTerm replaces all default mouse bindings
+-- when this table is set, so paste (middle-click) is included explicitly.
+config.mouse_bindings = {
+  {
+    event = { Down = { streak = 1, button = 'WheelUp' } },
+    mods = 'NONE',
+    action = wezterm.action.ScrollByLine(-1),
+  },
+  {
+    event = { Down = { streak = 1, button = 'WheelDown' } },
+    mods = 'NONE',
+    action = wezterm.action.ScrollByLine(1),
+  },
+  {
+    event = { Down = { streak = 1, button = 'Middle' } },
+    mods = 'NONE',
+    action = wezterm.action.PasteFrom('Clipboard'),
+  },
+}
+
 -- Keys: compensate for missing window chrome and invisible tab bar
 config.keys = {
   -- Tabs
