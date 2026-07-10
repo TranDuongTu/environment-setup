@@ -47,12 +47,12 @@ config.use_fancy_tab_bar = false
 -- when this table is set, so paste (middle-click) is included explicitly.
 config.mouse_bindings = {
   {
-    event = { Down = { streak = 1, button = 'WheelUp' } },
+    event = { Down = { streak = 1, button = { WheelUp = 1 } } },
     mods = 'NONE',
     action = wezterm.action.ScrollByLine(-1),
   },
   {
-    event = { Down = { streak = 1, button = 'WheelDown' } },
+    event = { Down = { streak = 1, button = { WheelDown = 1 } } },
     mods = 'NONE',
     action = wezterm.action.ScrollByLine(1),
   },
