@@ -375,6 +375,18 @@ install_wezterm() {
   ok "wezterm-nightly installed ($(wezterm --version 2>/dev/null || echo 'version unknown'))"
 }
 
+# ── Herdr ────────────────────────────────────────────────────────────────────
+
+install_herdr() {
+  if command_exists herdr; then
+    ok "herdr already installed ($(herdr --version 2>/dev/null || echo 'version unknown'))"
+    return
+  fi
+  info "Installing herdr (agent multiplexer)..."
+  curl -fsSL https://herdr.dev/install.sh | sh
+  ok "herdr installed"
+}
+
 # ── Plugin Managers ──────────────────────────────────────────────────────────
 
 install_tpm() {
@@ -516,6 +528,7 @@ main() {
   install_omf
   install_tmuxinator
   install_wezterm
+  install_herdr
 
   # Neovim bootstrap
   setup_nvim
