@@ -1,10 +1,8 @@
 local wezterm = require('wezterm')
 local config = wezterm.config_builder()
 
--- Appearance: fully borderless. Use Super+Up to maximize; GNOME may lose the
--- maximized state on focus changes but the clean look is preferred.
-config.window_decorations = 'NONE'
-config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
+-- Appearance: window with title bar and resize handles
+config.window_decorations = 'TITLE | RESIZE'
 
 -- Font: matches the JetBrainsMono Nerd Font installed by install.sh
 config.font = wezterm.font('JetBrainsMono Nerd Font')
