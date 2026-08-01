@@ -165,7 +165,7 @@ install_packages_macos() {
     ripgrep fzf
     node go python3
     cmake
-    kubectl k9s
+    kubectl k9s herdr
     ruby tmuxinator
   )
 

@@ -71,6 +71,9 @@ config.keys = {
   { key = 'LeftArrow',  mods = 'CTRL|SHIFT', action = wezterm.action.ActivateTabRelative(-1) },
   { key = 'RightArrow', mods = 'CTRL|SHIFT', action = wezterm.action.ActivateTabRelative(1) },
 
+  -- Fullscreen (Ctrl+Shift+F)
+  { key = 'f', mods = 'CTRL|SHIFT', action = wezterm.action.ToggleFullScreen },
+
   -- Split panes inside a tab (mirrors tmux d/D muscle memory)
   { key = 'd', mods = 'CTRL|SHIFT', action = wezterm.action.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
   { key = 'D', mods = 'CTRL|SHIFT', action = wezterm.action.SplitVertical({ domain = 'CurrentPaneDomain' }) },
