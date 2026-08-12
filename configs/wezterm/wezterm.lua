@@ -43,23 +43,25 @@ config.use_fancy_tab_bar = false
 -- Scroll: default is 3 lines per wheel tick, which feels too fast.
 -- Reduce to 1 line per tick. WezTerm replaces all default mouse bindings
 -- when this table is set, so paste (middle-click) is included explicitly.
-config.mouse_bindings = {
-  {
-    event = { Down = { streak = 1, button = { WheelUp = 1 } } },
-    mods = 'NONE',
-    action = wezterm.action.ScrollByLine(-1),
-  },
-  {
-    event = { Down = { streak = 1, button = { WheelDown = 1 } } },
-    mods = 'NONE',
-    action = wezterm.action.ScrollByLine(1),
-  },
-  {
-    event = { Down = { streak = 1, button = 'Middle' } },
-    mods = 'NONE',
-    action = wezterm.action.PasteFrom('Clipboard'),
-  },
-}
+-- Bindings are duplicated for all modifier combos to prevent scroll events
+-- from leaking to other windows (known X11 issue with certain compositors).
+local function make_binding(event, action, mods)
+  return { event = event, mods = mods, action = action }
+end
+
+local scroll_ev_up   = { Down = { streak = 1, button = { WheelUp = 1 } } }
+local scroll_ev_down = { Down = { streak = 1, button = { WheelDown = 1 } } }
+local paste_ev       = { Down = { streak = 1, button = 'Middle' } }
+
+local mods_sets = { 'NONE', 'SHIFT', 'CTRL', 'ALT', 'SHIFT|CTRL', 'SHIFT|ALT', 'CTRL|ALT', 'SHIFT|CTRL|ALT' }
+config.mouse_bindings = {}
+for _, mods in ipairs(mods_sets) do
+  table.insert(config.mouse_bindings, make_binding(scroll_ev_up,   wezterm.action.ScrollByLine(-1), mods))
+  table.insert(config.mouse_bindings, make_binding(scroll_ev_down, wezterm.action.ScrollByLine(1), mods))
+  table.insert(config.mouse_bindings, make_binding(paste_ev,       wezterm.action.PasteFrom('Clipboard'), mods))
+end
+
+config.bypass_mouse_reporting_modifiers = 'SHIFT'
 
 -- Keys: compensate for missing window chrome and invisible tab bar
 config.keys = {
