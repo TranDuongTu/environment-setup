@@ -22,6 +22,7 @@ This repo is a personal dev environment bootstrap. It installs and configures Ne
 | Fish | `configs/fish/` | `~/.config/fish/` |
 | OMF | `configs/omf/` | `~/.config/omf/` |
 | Git | `configs/git/.gitconfig` | `~/.gitconfig` |
+| OpenCode | `configs/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
 | WezTerm | `configs/wezterm/` | `~/.config/wezterm/` |
 
 ## Making changes

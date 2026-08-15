@@ -263,6 +263,7 @@ Configs are **copied** to their standard locations (not symlinked). Re-running `
 | `configs/fish/` | `~/.config/fish/` |
 | `configs/omf/` | `~/.config/omf/` |
 | `configs/git/.gitconfig` | `~/.gitconfig` |
+| `configs/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
 
 ---
 
@@ -307,6 +308,8 @@ configs/
 │   ├── bundle
 │   ├── theme
 │   └── channel
-└── git/
-    └── .gitconfig
+├── git/
+│   └── .gitconfig
+└── opencode/
+    └── opencode.jsonc
 ```

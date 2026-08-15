@@ -281,6 +281,9 @@ deploy_configs() {
   # Git
   copy_file "$CONFIGS_DIR/git/.gitconfig" "$HOME/.gitconfig"
 
+  # OpenCode
+  copy_file "$CONFIGS_DIR/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
+
   # WezTerm
   copy_dir "$CONFIGS_DIR/wezterm" "$HOME/.config/wezterm"
 
