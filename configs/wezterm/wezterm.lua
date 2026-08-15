@@ -1,7 +1,10 @@
 local wezterm = require('wezterm')
 local config = wezterm.config_builder()
 
--- Appearance: window with title bar and resize handles
+-- Appearance: window with title bar and resize handles.
+-- Force the X11 backend so GNOME/mutter draws GTK title-bar decorations;
+-- under native Wayland the client renders borderless regardless of this flag.
+config.enable_wayland = false
 config.window_decorations = 'TITLE | RESIZE'
 
 -- Font: matches the JetBrainsMono Nerd Font installed by install.sh
