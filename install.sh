@@ -97,6 +97,18 @@ install_packages_linux() {
     ok "lazygit already installed"
   fi
 
+  # Lazydocker
+  if ! command_exists lazydocker; then
+    info "Installing lazydocker..."
+    LAZYDOCKER_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazydocker/releases/latest" | grep -Po '"tag_name": *"v\K[^"]*')
+    curl -Lo /tmp/lazydocker.tar.gz "https://github.com/jesseduffield/lazydocker/releases/download/v${LAZYDOCKER_VERSION}/lazydocker_${LAZYDOCKER_VERSION}_Linux_x86_64.tar.gz"
+    tar xf /tmp/lazydocker.tar.gz -C /tmp lazydocker
+    sudo install /tmp/lazydocker /usr/local/bin/lazydocker
+    rm -f /tmp/lazydocker /tmp/lazydocker.tar.gz
+  else
+    ok "lazydocker already installed"
+  fi
+
   # Node.js (via NodeSource)
   if ! command_exists node; then
     info "Installing Node.js..."
@@ -161,7 +173,7 @@ install_packages_macos() {
   fi
 
   local packages=(
-    neovim tmux fish git gh lazygit
+    neovim tmux fish git gh lazygit lazydocker
     ripgrep fzf
     node go python3
     cmake
