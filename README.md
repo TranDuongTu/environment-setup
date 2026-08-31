@@ -36,6 +36,8 @@ The repo can be deleted after install — configs are copied to their standard l
 | Lazygit | GitHub Releases (latest) | Linux |
 | Node.js | NodeSource LTS | Linux |
 | Go | [go.dev](https://go.dev) (latest stable) | Linux |
+| Alacritty | `ppa:aslatter/ppa` | Linux |
+| Alacritty | Homebrew cask | macOS |
 | kubectl | [dl.k8s.io](https://dl.k8s.io) (stable) | Linux |
 | k9s | GitHub Releases (latest) | Linux |
 | ripgrep | apt | Linux |
@@ -245,6 +247,28 @@ Plugin manager: [Oh My Fish](https://github.com/oh-my-fish/oh-my-fish) (installe
 
 ---
 
+### Alacritty
+
+A second terminal alongside WezTerm — neither replaces the other. Config lives at `~/.config/alacritty/alacritty.toml` (the same path on Linux and macOS).
+
+Alacritty has **no tabs, no splits, and no plugin system**, by design. There is no equivalent to the WezTerm tab/pane keybindings or the `bar.wezterm` status strip — tmux already owns tabs, splits, pane navigation, and the status bar.
+
+**Settings:**
+- Font: JetBrainsMono Nerd Font, 13pt
+- Colors: Rose Pine (main), inlined — Alacritty ships no built-in themes
+- `window.decorations = "Full"` — title bar and resize handles
+- `scrolling.multiplier = 1` — one line per wheel tick (default is 3)
+- `TERM=xterm-256color` — Alacritty's own terminfo entry ships with the Linux package but not with macOS's bundled ncurses
+
+**Keybindings:**
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+Shift+F` | Toggle fullscreen |
+| `Ctrl+Shift+C` / `Ctrl+Shift+V` | Copy / paste (Alacritty default) |
+
+---
+
 ### Git
 
 `~/.gitconfig` is copied from `configs/git/.gitconfig`. Uses `gh` as the credential helper.
@@ -264,6 +288,8 @@ Configs are **copied** to their standard locations (not symlinked). Re-running `
 | `configs/omf/` | `~/.config/omf/` |
 | `configs/git/.gitconfig` | `~/.gitconfig` |
 | `configs/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
+| `configs/wezterm/` | `~/.config/wezterm/` |
+| `configs/alacritty/` | `~/.config/alacritty/` |
 
 ---
 
@@ -310,6 +336,10 @@ configs/
 │   └── channel
 ├── git/
 │   └── .gitconfig
-└── opencode/
-    └── opencode.jsonc
+├── opencode/
+│   └── opencode.jsonc
+├── wezterm/
+│   └── wezterm.lua
+└── alacritty/
+    └── alacritty.toml
 ```

@@ -1,0 +1,80 @@
+# Alacritty — deployed to ~/.config/alacritty/alacritty.toml on both Linux and
+# macOS (Alacritty reads the XDG path on both, so this file is not per-OS).
+#
+# Alacritty has no tabs, no splits, and no plugin system by design. The tab and
+# pane keybindings in configs/wezterm/wezterm.lua have no equivalent here —
+# tmux owns tabs, splits, pane navigation, and the status bar.
+
+# Font: matches the JetBrainsMono Nerd Font installed by install.sh
+[font]
+size = 13.0
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+# Window with title bar and resize handles, matching wezterm's 'TITLE | RESIZE'.
+# "Full" is the only decoration mode that is meaningful on Linux; the other
+# non-None values ("Transparent", "Buttonless") are macOS-only.
+[window]
+decorations = "Full"
+
+# Scroll: Alacritty's default is 3 lines per wheel tick, which feels too fast.
+# Reduce to 1 line per tick, matching the wezterm ScrollByLine(1) bindings.
+[scrolling]
+multiplier = 1
+
+# TERM: Alacritty defaults to TERM=alacritty, whose terminfo entry ships with
+# the Linux package but NOT with macOS's bundled ncurses — which breaks ssh and
+# any tool that looks the entry up. xterm-256color exists everywhere. tmux sets
+# its own TERM inside a session, so this only affects bare shells.
+# Flip back to "alacritty" if you want undercurl outside tmux and are willing to
+# run `tic` on macOS.
+[env]
+TERM = "xterm-256color"
+
+# Fullscreen on Ctrl+Shift+F, matching the wezterm binding. (F11 also works —
+# it is an Alacritty default and is left in place.)
+[[keyboard.bindings]]
+key = "F"
+mods = "Control|Shift"
+action = "ToggleFullscreen"
+
+# Color scheme: Rose Pine (main) — the same theme configs/wezterm/wezterm.lua
+# pulls from the neapsix/wezterm plugin. Alacritty ships no built-in themes and
+# has no plugin system, so the palette is inlined rather than imported.
+[colors.primary]
+background = "#191724"
+foreground = "#e0def4"
+
+[colors.cursor]
+text = "#e0def4"
+cursor = "#524f67"
+
+[colors.vi_mode_cursor]
+text = "#e0def4"
+cursor = "#524f67"
+
+[colors.selection]
+text = "#e0def4"
+background = "#403d52"
+
+[colors.normal]
+black   = "#26233a"
+red     = "#eb6f92"
+green   = "#31748f"
+yellow  = "#f6c177"
+blue    = "#9ccfd8"
+magenta = "#c4a7e7"
+cyan    = "#ebbcba"
+white   = "#e0def4"
+
+[colors.bright]
+black   = "#6e6a86"
+red     = "#eb6f92"
+green   = "#31748f"
+yellow  = "#f6c177"
+blue    = "#9ccfd8"
+magenta = "#c4a7e7"
+cyan    = "#ebbcba"
+white   = "#e0def4"
