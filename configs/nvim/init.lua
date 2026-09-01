@@ -47,3 +47,10 @@ vim.keymap.set('n', '<leader>gc', ':DiffviewClose<CR>', { desc = 'Diffview: clos
 vim.keymap.set('n', '<leader>gh', ':DiffviewFileHistory %<CR>', { desc = 'Diffview: current file history', silent = true })
 vim.keymap.set('n', '<leader>hb', function() require('gitsigns').blame_line() end, { desc = 'Git blame line' })
 vim.keymap.set('n', '<leader>gn', function() require('neogit').open() end, { desc = 'Neogit: open' })
+
+-- Octo (GitHub) keymaps
+vim.keymap.set('n', '<leader>go', ':Octo<CR>', { desc = 'Octo: dashboard', silent = true })
+vim.keymap.set('n', '<leader>gp', ':Octo pr list<CR>', { desc = 'Octo: PR list', silent = true })
+vim.keymap.set('n', '<leader>gv', ':Octo pr view<CR>', { desc = 'Octo: view current PR', silent = true })
+vim.keymap.set('n', '<leader>gs', ':Octo review start<CR>', { desc = 'Octo: start review', silent = true })
+vim.keymap.set('n', '<leader>gu', ':Octo review submit<CR>', { desc = 'Octo: submit review', silent = true })
