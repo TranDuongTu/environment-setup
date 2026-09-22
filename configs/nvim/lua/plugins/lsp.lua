@@ -29,7 +29,7 @@ return {
     config = function()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      local on_attach = function(_, bufnr)
+      local on_attach = function(client, bufnr)
         local map = function(keys, func, desc)
           vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
         end
@@ -48,6 +48,22 @@ return {
         map("<leader>xd", vim.diagnostic.open_float,                                  "LSP: show diagnostic")
         map("]d",         function() vim.diagnostic.goto_next({ float = true }) end,  "LSP: next diagnostic")
         map("[d",         function() vim.diagnostic.goto_prev({ float = true }) end,  "LSP: prev diagnostic")
+
+        -- Highlight every usage of the symbol under the cursor while it sits
+        -- idle, and clear the highlight as soon as the cursor moves.
+        if client:supports_method("textDocument/documentHighlight") then
+          local group = vim.api.nvim_create_augroup("lsp-document-highlight", { clear = false })
+          vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+            group = group,
+            buffer = bufnr,
+            callback = vim.lsp.buf.document_highlight,
+          })
+          vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufLeave" }, {
+            group = group,
+            buffer = bufnr,
+            callback = vim.lsp.buf.clear_references,
+          })
+        end
       end
 
       -- Pyright: type checking + navigation (gd, gr, rename, hover, symbols)

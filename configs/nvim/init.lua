@@ -14,6 +14,7 @@ vim.opt.expandtab = true
 vim.wo.number = true
 vim.opt.conceallevel = 2
 vim.opt.concealcursor = "n"
+vim.opt.updatetime = 250 -- faster CursorHold, used for LSP document highlight
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
