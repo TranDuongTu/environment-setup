@@ -290,17 +290,8 @@ deploy_configs() {
     fi
   done
 
-  # Git
-  copy_file "$CONFIGS_DIR/git/.gitconfig" "$HOME/.gitconfig"
-
-  # OpenCode
-  copy_file "$CONFIGS_DIR/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
-
   # WezTerm
   copy_dir "$CONFIGS_DIR/wezterm" "$HOME/.config/wezterm"
-
-  # Alacritty
-  copy_dir "$CONFIGS_DIR/alacritty" "$HOME/.config/alacritty"
 
   # Oh My Fish config
   copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
@@ -341,10 +332,12 @@ install_wezterm() {
 
     # 2. Install the cask if missing, else upgrade. Regular `brew upgrade`
     #    will not upgrade casks that auto-update, so --greedy-latest is
-    #    required to actually pull a new nightly on re-runs.
+    #    required to actually pull a new nightly on re-runs. Quarantine
+    #    approval is inherited from the previous version automatically in
+    #    Homebrew 7+ (the --no-quarantine flag was removed).
     if brew list --cask wezterm@nightly &>/dev/null; then
       info "Upgrading wezterm@nightly cask..."
-      brew upgrade --cask wezterm@nightly --no-quarantine --greedy-latest \
+      brew upgrade --cask wezterm@nightly --greedy-latest \
         && ok "wezterm@nightly upgraded" \
         || ok "wezterm@nightly already up-to-date"
     else
@@ -391,45 +384,6 @@ install_wezterm() {
   info "Ensuring wezterm-nightly is installed and up-to-date..."
   sudo apt-get install -y -qq wezterm-nightly
   ok "wezterm-nightly installed ($(wezterm --version 2>/dev/null || echo 'version unknown'))"
-}
-
-# ── Alacritty ────────────────────────────────────────────────────────────────
-
-install_alacritty() {
-  if [ "$OS" = "macos" ]; then
-    # macOS: `alacritty` is NOT a brew formula — it ships only as a cask, which
-    # is why it is absent from the packages array above.
-    if brew list --cask alacritty &>/dev/null; then
-      ok "alacritty already installed"
-    else
-      info "Installing alacritty cask..."
-      brew install --cask alacritty
-      ok "alacritty installed"
-    fi
-    return
-  fi
-
-  # Linux: use the maintainer-endorsed PPA (ppa:aslatter/ppa). Ubuntu's own
-  # universe pocket carries 0.13.2, roughly two years behind upstream; the PPA
-  # is several releases newer and stays apt-managed, so future `apt upgrade`
-  # runs pick up new builds. Same pattern as the neovim PPA above.
-
-  # 1. Add the PPA if absent. add-apt-repository writes either a .list or a
-  #    deb822 .sources file depending on the Ubuntu release, so glob for both.
-  if ! compgen -G "/etc/apt/sources.list.d/aslatter*" >/dev/null; then
-    info "Configuring alacritty PPA (ppa:aslatter/ppa)..."
-    sudo add-apt-repository -y ppa:aslatter/ppa
-    sudo apt-get update -qq
-    ok "alacritty PPA configured"
-  else
-    ok "alacritty PPA already configured"
-  fi
-
-  # 2. Install or upgrade. `apt-get install` is idempotent: it installs if
-  #    absent, upgrades if the PPA has a newer build, or no-ops if current.
-  info "Ensuring alacritty is installed and up-to-date..."
-  sudo apt-get install -y -qq alacritty
-  ok "alacritty installed ($(alacritty --version 2>/dev/null || echo 'version unknown'))"
 }
 
 # ── Herdr ────────────────────────────────────────────────────────────────────
@@ -585,7 +539,6 @@ main() {
   install_omf
   install_tmuxinator
   install_wezterm
-  install_alacritty
   install_herdr
 
   # Neovim bootstrap
@@ -608,7 +561,6 @@ main() {
   echo "     lazy.nvim will auto-install all plugins on first launch"
   echo "  5. bobthefish theme (dracula colors) will load automatically via OMF bundle"
   echo "  6. Run: wezterm  (borderless terminal — try Ctrl+Shift+T for a new tab)"
-  echo "  7. Run: alacritty  (minimal terminal — no tabs/splits by design; use tmux)"
   echo ""
 }
 

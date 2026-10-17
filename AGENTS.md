@@ -21,10 +21,7 @@ This repo is a personal dev environment bootstrap. It installs and configures Ne
 | Tmux | `configs/tmux/.tmux.conf` | `~/.tmux.conf` |
 | Fish | `configs/fish/` | `~/.config/fish/` |
 | OMF | `configs/omf/` | `~/.config/omf/` |
-| Git | `configs/git/.gitconfig` | `~/.gitconfig` |
-| OpenCode | `configs/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
 | WezTerm | `configs/wezterm/` | `~/.config/wezterm/` |
-| Alacritty | `configs/alacritty/` | `~/.config/alacritty/` |
 
 ## Making changes
 
