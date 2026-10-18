@@ -144,12 +144,14 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 | `tmux-plugins/tmux-battery` | Battery status in status bar |
 | `christoomey/vim-tmux-navigator` | Seamless pane navigation with Neovim |
 | `sainnhe/tmux-fzf` | Fuzzy-find sessions, windows, and panes |
+| `tmux-plugins/tmux-resurrect` | Save/restore sessions, windows, and pane state |
+| `tmux-plugins/tmux-continuum` | Auto-save every 15 min, auto-restore on server start |
 
 **Settings:**
 - Status bar at top
-- Mouse support off
+- Mouse support on (drag selects text, wheel scrolls history)
 - Pane borders show pane index, pane title, and current command
-- Clipboard via `xclip` (Linux)
+- Clipboard via `pbcopy` (macOS) / `xclip` (Linux)
 - Pane switching: `C-h/j/k/l` (no prefix needed, via vim-tmux-navigator)
 
 **Keybindings:**
@@ -159,6 +161,8 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 | `C-b r` | Reload tmux config |
 | `C-b W` | Open workspace launcher (fzf: layout → repo → agent) |
 | `C-b F` | tmux-fzf: fuzzy-find sessions, windows, panes |
+| `C-b C-s` | Resurrect: save all sessions |
+| `C-b C-r` | Resurrect: restore sessions from the last save |
 
 ---
 
