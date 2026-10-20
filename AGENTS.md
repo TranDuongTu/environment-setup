@@ -4,7 +4,7 @@ This repo is a personal dev environment bootstrap. It installs and configures Ne
 
 ## What this repo does
 
-- `install.sh` — idempotent setup script: installs system packages, copies configs, installs plugin managers, sets fish as default shell
+- `install.sh` — idempotent setup script: installs system packages, copies configs, installs plugin managers, sets fish as default shell. `./install.sh nvim` deploys only the Neovim config and syncs its plugins (skipping packages and other tools); plain `./install.sh` does everything
 - `configs/` — source-of-truth for all tool configs; changes here are deployed by re-running `install.sh`
 
 ## Key constraints
@@ -26,7 +26,7 @@ This repo is a personal dev environment bootstrap. It installs and configures Ne
 ## Making changes
 
 - Edit config files under `configs/` — never edit deployed paths directly
-- Test changes by running `./install.sh` and then syncing running tools:
+- Test changes by running `./install.sh` (or `./install.sh nvim` for Neovim-only changes) and then syncing running tools:
   - tmux: `C-b r` (reload), `C-b I` (reinstall plugins)
   - Neovim: `:Lazy sync`
 - Plugin lists live in `configs/nvim/init.lua` (lazy.nvim) and `configs/tmux/.tmux.conf` (TPM)

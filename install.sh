@@ -22,6 +22,13 @@ warn()  { printf '\033[1;33m[WARN]\033[0m  %s\n' "$*"; }
 
 command_exists() { command -v "$1" &>/dev/null; }
 
+usage() {
+  echo "Usage: ./install.sh [nvim|all]"
+  echo "  (no argument)  Full setup: packages, all configs, fonts, plugins, fish shell"
+  echo "  nvim           Only deploy the Neovim config and sync its plugins"
+  echo "  all            Same as no argument"
+}
+
 # ── Detect OS ─────────────────────────────────────────────────────────────────
 
 detect_os() {
@@ -510,6 +517,24 @@ set_fish_default() {
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 main() {
+  local target
+
+  if [ "$#" -gt 1 ]; then
+    echo "Error: expected at most one argument." >&2
+    usage
+    exit 1
+  fi
+
+  target="${1:-all}"
+  case "$target" in
+    all|nvim) ;;
+    *)
+      echo "Error: unknown target '$target'." >&2
+      usage
+      exit 1
+      ;;
+  esac
+
   echo ""
   echo "=========================================="
   echo "  Environment Setup"
@@ -517,6 +542,24 @@ main() {
   echo ""
 
   detect_os
+
+  if [ "$target" = "nvim" ]; then
+    info "Mode: nvim (deploy Neovim config + sync plugins only)"
+
+    if ! command_exists nvim; then
+      echo "Error: nvim is not installed. Run the full install first: ./install.sh" >&2
+      exit 1
+    fi
+
+    copy_dir "$CONFIGS_DIR/nvim" "$HOME/.config/nvim"
+    setup_nvim
+
+    echo ""
+    echo "Neovim setup complete — restart nvim (or run :Lazy sync) to reload configs."
+    return
+  fi
+
+  info "Mode: full (packages + all configs + plugins + shell)"
 
   # Install packages
   if [ "$OS" = "linux" ]; then

@@ -47,7 +47,19 @@ vim.keymap.set('n', '<leader>o', ':Neotree focus<CR>', { desc = 'Focus Neo-tree'
 vim.keymap.set('n', '<leader>gd', ':DiffviewOpen<CR>', { desc = 'Diffview: open changed files', silent = true })
 vim.keymap.set('n', '<leader>gc', ':DiffviewClose<CR>', { desc = 'Diffview: close', silent = true })
 vim.keymap.set('n', '<leader>gh', ':DiffviewFileHistory %<CR>', { desc = 'Diffview: current file history', silent = true })
-vim.keymap.set('n', '<leader>hb', function() require('gitsigns').blame_line() end, { desc = 'Git blame line' })
+vim.keymap.set('n', '<leader>gb', function() require('gitsigns').blame_line() end, { desc = 'Git blame line' })
+vim.keymap.set('n', '<leader>gB', function()
+  local blame_wins = vim.tbl_filter(function(w)
+    return vim.bo[vim.api.nvim_win_get_buf(w)].filetype == 'gitsigns-blame'
+  end, vim.api.nvim_list_wins())
+  if #blame_wins > 0 then
+    for _, w in ipairs(blame_wins) do
+      vim.api.nvim_win_close(w, false)
+    end
+  else
+    require('gitsigns').blame()
+  end
+end, { desc = 'Git blame file (toggle)' })
 vim.keymap.set('n', '<leader>gn', function() require('neogit').open() end, { desc = 'Neogit: open' })
 
 -- Octo (GitHub) keymaps
