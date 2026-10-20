@@ -60,6 +60,22 @@ vim.keymap.set('n', '<leader>gB', function()
     require('gitsigns').blame()
   end
 end, { desc = 'Git blame file (toggle)' })
+vim.keymap.set('n', '<leader>gj', function()
+  if vim.wo.diff then
+    vim.cmd.normal({ ']c', bang = true })
+  else
+    require('gitsigns').nav_hunk('next')
+  end
+end, { desc = 'Git next hunk' })
+vim.keymap.set('n', '<leader>gk', function()
+  if vim.wo.diff then
+    vim.cmd.normal({ '[c', bang = true })
+  else
+    require('gitsigns').nav_hunk('prev')
+  end
+end, { desc = 'Git previous hunk' })
+vim.keymap.set('n', '<leader>gV', function() require('gitsigns').preview_hunk() end, { desc = 'Git preview hunk (hover)' })
+vim.keymap.set('n', '<leader>gi', function() require('gitsigns').preview_hunk_inline() end, { desc = 'Git preview hunk inline' })
 vim.keymap.set('n', '<leader>gn', function() require('neogit').open() end, { desc = 'Neogit: open' })
 
 -- Octo (GitHub) keymaps
