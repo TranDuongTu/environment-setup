@@ -263,7 +263,9 @@ Plugin manager: [Oh My Fish](https://github.com/oh-my-fish/oh-my-fish) (installe
 
 | Plugin/Theme | Purpose |
 |-------------|---------|
-| `bobthefish` theme | Powerline-style prompt |
+| `bobthefish` theme | Powerline-style prompt, configured via `configs/fish/conf.d/theme_bobthefish.fish` |
+
+The prompt is bobthefish restyled with **rounded segments and a split paint layer**: the path renders as plain unboxed text (`$fish_color_cwd`), while only stateful segments (git branch/status, exit flag, ...) wear rounded pills (`` `` / `` `` half-circle caps instead of arrows). Because bobthefish defines all of its helpers inside its single `fish_prompt.fish`, in-memory definitions would beat plain user-dir shadows — so the repo owns a user-dir `fish_prompt.fish` that loads upstream once per shell and then re-registers the override copies (each documents its diff vs upstream in a top comment): `__bobthefish_glyphs.fish`, `__bobthefish_start_segment.fish`, `__bobthefish_close_segment.fish`, `__bobthefish_path_segment.fish`, `__bobthefish_prompt_git.fish`. Theme options keep it lean: git projects show the repo name only (no parents) and the right prompt (command duration + clock) is empty — see `configs/fish/conf.d/theme_bobthefish.fish`. PATH entries are added dynamically from `$HOME` in `config.fish` (no absolute, user-specific paths are persisted).
 
 ---
 
@@ -302,7 +304,7 @@ The script is idempotent — re-run `./install.sh` at any time to update package
 | 5 | Open Neovim: `nvim` |
 | 6 | Sync Neovim plugins: `:Lazy sync` |
 
-**First install only:** lazy.nvim bootstraps itself automatically when Neovim first opens; tree-sitter parsers install on first file open. The bobthefish prompt loads automatically via OMF bundle.
+**First install only:** lazy.nvim bootstraps itself automatically when Neovim first opens; tree-sitter parsers install on first file open. The prompt is bobthefish with rounded caps, configured in `configs/fish/conf.d/theme_bobthefish.fish`.
 
 ## Repo Structure
 

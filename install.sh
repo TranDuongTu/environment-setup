@@ -643,7 +643,7 @@ main() {
   echo "     Then press C-b I to install tmux plugins via TPM"
   echo "  4. Run: nvim"
   echo "     lazy.nvim will auto-install all plugins on first launch"
-  echo "  5. bobthefish theme (dracula colors) will load automatically via OMF bundle"
+  echo "  5. bobthefish prompt: rounded pills for git/status, unboxed path text, repo-name-only git dir, empty right prompt (see configs/fish/conf.d/theme_bobthefish.fish + configs/fish/functions overrides)"
   echo "  6. Run: ghostty (borderless + blurred, per the ghostty config)"
   echo "     or: wezterm (borderless terminal — try Ctrl+Shift+T for a new tab)"
   echo ""

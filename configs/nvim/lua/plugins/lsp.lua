@@ -215,12 +215,43 @@ return {
         capabilities = capabilities,
         on_attach = function(client, bufnr)
           on_attach(client, bufnr)
+          -- <leader>gf: format via the LSP (dartls registers formatting
+          -- dynamically at attach, so vim.lsp.buf.format handles it).
           vim.keymap.set("n", "<leader>gf", function()
-            vim.cmd("silent write")
-            local file = vim.api.nvim_buf_get_name(0)
-            vim.fn.system({ "dart", "format", file })
-            vim.cmd("silent! edit!")
-          end, { buffer = bufnr, desc = "dart: format buffer" })
+            vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = true })
+          end, { buffer = bufnr, desc = "dartls: format buffer" })
+          -- On save: strip unused imports, then format — both synchronously
+          -- so edits land before :write completes. Note: dartls's "Organize /
+          -- Fix All" source actions are server commands whose workspace edits
+          -- arrive async (after :write is done), so unused-import removal
+          -- instead replays dartls's synchronous per-diagnostic quick fix
+          -- ("Remove unused import"). Sorting imports stays manual:
+          -- <leader>ca -> Organize Imports.
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            callback = function()
+              local diags = vim.diagnostic.get(bufnr)
+              for i = #diags, 1, -1 do  -- bottom-up so earlier edits don't shift later ranges
+                local d = diags[i]
+                if d.code == "unused_import" or d.message:find("Unused import") then
+                  local res = client:request_sync("textDocument/codeAction", {
+                    textDocument = vim.lsp.util.make_text_document_params(bufnr),
+                    range = {
+                      start = { line = d.lnum, character = d.col },
+                      ["end"] = { line = d.end_lnum, character = d.end_col },
+                    },
+                    context = { diagnostics = {} },
+                  }, 10000, bufnr)
+                  for _, action in ipairs(res and res.result or {}) do
+                    if action.kind == "quickfix.remove.unusedImport" and action.edit then
+                      vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+                    end
+                  end
+                end
+              end
+              vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = false })
+            end,
+          })
         end,
       })
       vim.lsp.enable("dartls")
