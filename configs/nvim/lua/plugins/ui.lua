@@ -2,10 +2,11 @@ return {
   { "folke/which-key.nvim" },
   { "nvim-tree/nvim-web-devicons", opts = {} },
   {
-    "folke/tokyonight.nvim",
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     opts = {
-      style = "night",
+      flavour = "mocha",
     },
   },
   {

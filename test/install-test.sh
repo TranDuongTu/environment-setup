@@ -107,6 +107,7 @@ scenario_full() {
   assert_present "$SANDBOX/.tmux.conf"             "full: tmux config"
   assert_present "$SANDBOX/.config/fish"           "full: fish config"
   assert_present "$SANDBOX/.config/wezterm"        "full: wezterm config"
+  assert_present "$SANDBOX/.config/ghostty/config" "full: ghostty config"
   assert_present "$SANDBOX/.config/omf"            "full: omf config"
   echo "    log: $SANDBOX/last-run.log"
 }
@@ -122,6 +123,7 @@ scenario_nvim() {
   assert_absent  "$SANDBOX/.tmux.conf"            "nvim-only: tmux config untouched"
   assert_absent  "$SANDBOX/.config/fish"          "nvim-only: fish config untouched"
   assert_absent  "$SANDBOX/.config/wezterm"       "nvim-only: wezterm config untouched"
+  assert_absent  "$SANDBOX/.config/ghostty"       "nvim-only: ghostty config untouched"
   assert_absent  "$SANDBOX/.config/omf"           "nvim-only: omf config untouched"
   echo "    log: $SANDBOX/last-run.log"
 }

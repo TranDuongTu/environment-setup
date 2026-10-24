@@ -43,6 +43,8 @@ The repo can be deleted after install — configs are copied to their standard l
 | xclip | apt | Linux only |
 | build-essential, cmake | apt | Linux |
 | python3 | apt | Linux |
+| Ghostty | `mkasberg/ghostty-ubuntu` PPA | Linux |
+| Ghostty | Homebrew cask (`brew install --cask ghostty`) | macOS |
 | All of the above | Homebrew | macOS |
 
 ### npm Global Packages
@@ -69,8 +71,8 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) (auto-bootstrapp
 
 | Plugin | Purpose |
 |--------|---------|
-| `folke/tokyonight.nvim` | Colorscheme (night style) |
-| `nvim-treesitter/nvim-treesitter` | Syntax highlighting (parsers: lua, vim, json, bash, markdown, markdown_inline, python) |
+| `catppuccin/nvim` | Colorscheme (mocha flavour) |
+| `nvim-treesitter/nvim-treesitter` | Syntax highlighting (parsers: lua, vim, json, bash, markdown, markdown_inline, python, go, typescript, tsx, javascript, dart) |
 | `nvim-telescope/telescope.nvim` + `telescope-fzf-native.nvim` | Fuzzy finder |
 | `nvim-neo-tree/neo-tree.nvim` (v3.x) | File explorer |
 | `lewis6991/gitsigns.nvim` | Git diff signs in gutter |
@@ -84,14 +86,17 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) (auto-bootstrapp
 | `nvim-tree/nvim-web-devicons` | File icons |
 | `christoomey/vim-tmux-navigator` | Seamless pane navigation with tmux |
 | `williamboman/mason.nvim` | LSP/DAP server installer (`:Mason` UI) |
-| `williamboman/mason-lspconfig.nvim` | Auto-installs `pyright` and `ruff` via Mason |
-| `jay-babu/mason-nvim-dap.nvim` | Auto-installs `debugpy` via Mason |
-| `neovim/nvim-lspconfig` | LSP client — Pyright (types/navigation) + Ruff (lint/format) |
+| `williamboman/mason-lspconfig.nvim` | Auto-installs `pyright`, `ruff`, `gopls`, and `typescript-language-server` via Mason |
+| `jay-babu/mason-nvim-dap.nvim` | Auto-installs `debugpy` (Python) and `delve` (Go debug) via Mason |
+| `neovim/nvim-lspconfig` | LSP clients — Pyright (types/navigation) + Ruff (lint/format), gopls (Go), ts_ls (TypeScript/JS), dartls (Dart; requires the Dart/Flutter SDK on PATH) |
 | `hrsh7th/nvim-cmp` + sources | Completion engine (LSP, buffer, path, snippets) |
 | `L3MON4D3/LuaSnip` | Snippet engine |
 | `mfussenegger/nvim-dap` | Debug adapter protocol client |
 | `mfussenegger/nvim-dap-python` | Python debug adapter (uses debugpy) |
 | `rcarriga/nvim-dap-ui` | Debug UI (auto-opens on session start) |
+| `NickvanDyke/opencode.nvim` | Embedded opencode agent (cursor/selection-aware prompts) |
+| `folke/snacks.nvim` | Input popup + window used by opencode.nvim |
+| `greggh/claude-code.nvim` | Claude Code in a right-side vertical split (30%, mirrors tmuxinator agent pane) |
 
 **Keybindings** (leader = `\`):
 
@@ -121,6 +126,15 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) (auto-bootstrapp
 | `\xl` | LSP: diagnostics list (Telescope) |
 | `\xd` | LSP: show diagnostic float |
 | `\f` | Ruff: format buffer |
+| `\gf` | gopls / ts_ls: organize imports + format (dartls: format via `dart` CLI) |
+| `\aa` | opencode: ask (snacks input; context from cursor/selection — `@this`) |
+| `\as` | opencode: select prompt |
+| `\ae` | opencode: explain (visual: selection, normal: line via `\aee`) |
+| `go` / `goo` | opencode: send motion range / current line to OpenCode |
+| `\ac` | Claude Code: toggle terminal (right-side split) |
+| `\aq` | Claude: one-shot question (`claude -p`, haiku model, right-side terminal) |
+| `\ar` | Claude Code: resume conversation picker |
+| `\av` | Claude Code: toggle with verbose output |
 | `]d` / `[d` | LSP: next / prev diagnostic |
 | `<F5>` / `\dc` | Debug: start / continue |
 | `<F9>` / `\db` | Debug: toggle breakpoint |
@@ -143,12 +157,14 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 | `tmux-plugins/tmux-cpu` | CPU usage in status bar |
 | `tmux-plugins/tmux-battery` | Battery status in status bar |
 | `christoomey/vim-tmux-navigator` | Seamless pane navigation with Neovim |
-| `sainnhe/tmux-fzf` | Fuzzy-find sessions, windows, and panes |
+| `omerxx/tmux-sessionx` | Session manager popup: switch, create (zoxide-aware paths), rename, delete (`C-b o`) |
+| `omerxx/tmux-floax` | Persistent floating scratch shell (`C-b p`) |
 | `tmux-plugins/tmux-resurrect` | Save/restore sessions, windows, and pane state |
 | `tmux-plugins/tmux-continuum` | Auto-save every 15 min, auto-restore on server start |
 
 **Settings:**
 - Status bar at top
+- Catppuccin frappe theme: rounded window pills (index on the left, icon: nvim vs terminal/shell fallback) and session + battery modules on the right
 - Mouse support on (drag selects text, wheel scrolls history)
 - Pane borders show pane index, pane title, and current command
 - Clipboard via `pbcopy` (macOS) / `xclip` (Linux)
@@ -160,7 +176,8 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 |-----|--------|
 | `C-b r` | Reload tmux config |
 | `C-b W` | Open workspace launcher (fzf: layout → repo → agent) |
-| `C-b F` | tmux-fzf: fuzzy-find sessions, windows, panes |
+| `C-b o` | tmux-sessionx: switch/create/kill sessions (fzf popup w/ previews) |
+| `C-b p` | tmux-floax: toggle persistent floating scratch shell |
 | `C-b C-s` | Resurrect: save all sessions |
 | `C-b C-r` | Resurrect: restore sessions from the last save |
 
@@ -249,6 +266,12 @@ Plugin manager: [Oh My Fish](https://github.com/oh-my-fish/oh-my-fish) (installe
 
 ---
 
+### Ghostty
+
+Config follows [omerxx/dotfiles](https://github.com/omerxx/dotfiles) (`ghostty/config`, master branch): 19pt font, blurred background (`background-blur-radius = 20`), mouse hidden while typing, no window decoration, option key acting as Alt on macOS. The only addition is the JetBrainsMono Nerd Font family installed by this repo.
+
+---
+
 ## Config Deployment
 
 Configs are **copied** to their standard locations (not symlinked). Re-running `install.sh` updates them in place, backing up any existing files to `<file>.bak`.
@@ -261,6 +284,7 @@ Configs are **copied** to their standard locations (not symlinked). Re-running `
 | `configs/fish/` | `~/.config/fish/` |
 | `configs/omf/` | `~/.config/omf/` |
 | `configs/wezterm/` | `~/.config/wezterm/` |
+| `configs/ghostty/config` | `~/.config/ghostty/config` |
 
 ---
 
@@ -305,6 +329,8 @@ configs/
 │   ├── bundle
 │   ├── theme
 │   └── channel
-└── wezterm/
-    └── wezterm.lua
+├── wezterm/
+│   └── wezterm.lua
+└── ghostty/
+    └── config
 ```

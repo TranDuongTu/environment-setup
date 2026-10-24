@@ -300,6 +300,9 @@ deploy_configs() {
   # WezTerm
   copy_dir "$CONFIGS_DIR/wezterm" "$HOME/.config/wezterm"
 
+  # Ghostty
+  copy_file "$CONFIGS_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+
   # Oh My Fish config
   copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
 }
@@ -391,6 +394,41 @@ install_wezterm() {
   info "Ensuring wezterm-nightly is installed and up-to-date..."
   sudo apt-get install -y -qq wezterm-nightly
   ok "wezterm-nightly installed ($(wezterm --version 2>/dev/null || echo 'version unknown'))"
+}
+
+# ── Ghostty ──────────────────────────────────────────────────────────────────
+
+install_ghostty() {
+  if [ "$OS" = "macos" ]; then
+    # macOS: official Homebrew cask (`ghostty`) — repackages the signed
+    # upstream .dmg (per ghostty.org/docs/install/binary).
+    if brew list --cask ghostty &>/dev/null; then
+      info "Upgrading ghostty cask..."
+      brew upgrade --cask ghostty \
+        && ok "ghostty upgraded" \
+        || ok "ghostty already up-to-date"
+    else
+      info "Installing ghostty cask..."
+      brew install --cask ghostty
+      ok "ghostty installed"
+    fi
+    return
+  fi
+
+  # Linux: no official apt package until Ubuntu 26.04, so use the
+  # community PPA (mkasberg/ghostty-ubuntu) — supports Ubuntu 24.04+ and
+  # tracks the latest release (per ghostty.org/docs/install/binary).
+  if ! command_exists ghostty; then
+    info "Configuring ghostty PPA (mkasberg/ghostty-ubuntu)..."
+    sudo add-apt-repository -y ppa:mkasberg/ghostty-ubuntu
+    sudo apt-get update -qq
+    ok "ghostty APT PPA configured"
+  fi
+
+  # Install/upgrade in one idempotent call (no-ops when already newest).
+  info "Ensuring ghostty is installed and up-to-date..."
+  sudo apt-get install -y -qq ghostty
+  ok "ghostty installed ($(ghostty --version 2>/dev/null | head -1 || echo 'version unknown'))"
 }
 
 # ── Herdr ────────────────────────────────────────────────────────────────────
@@ -582,6 +620,7 @@ main() {
   install_omf
   install_tmuxinator
   install_wezterm
+  install_ghostty
   install_herdr
 
   # Neovim bootstrap
@@ -603,7 +642,8 @@ main() {
   echo "  4. Run: nvim"
   echo "     lazy.nvim will auto-install all plugins on first launch"
   echo "  5. bobthefish theme (dracula colors) will load automatically via OMF bundle"
-  echo "  6. Run: wezterm  (borderless terminal — try Ctrl+Shift+T for a new tab)"
+  echo "  6. Run: ghostty (borderless + blurred, per the ghostty config)"
+  echo "     or: wezterm (borderless terminal — try Ctrl+Shift+T for a new tab)"
   echo ""
 }
 

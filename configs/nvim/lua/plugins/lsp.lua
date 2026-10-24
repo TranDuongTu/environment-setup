@@ -209,6 +209,22 @@ return {
         },
       })
 
+      -- dartls: Dart/Flutter. The server ships inside the Dart SDK (not in
+      -- mason), so it is enabled directly and requires `dart` on PATH.
+      vim.lsp.config("dartls", {
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          on_attach(client, bufnr)
+          vim.keymap.set("n", "<leader>gf", function()
+            vim.cmd("silent write")
+            local file = vim.api.nvim_buf_get_name(0)
+            vim.fn.system({ "dart", "format", file })
+            vim.cmd("silent! edit!")
+          end, { buffer = bufnr, desc = "dart: format buffer" })
+        end,
+      })
+      vim.lsp.enable("dartls")
+
       vim.diagnostic.config({
         virtual_text = { prefix = "●" },
         signs = true,

@@ -22,6 +22,7 @@ This repo is a personal dev environment bootstrap. It installs and configures Ne
 | Fish | `configs/fish/` | `~/.config/fish/` |
 | OMF | `configs/omf/` | `~/.config/omf/` |
 | WezTerm | `configs/wezterm/` | `~/.config/wezterm/` |
+| Ghostty | `configs/ghostty/` | `~/.config/ghostty/` |
 
 ## Making changes
 
