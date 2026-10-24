@@ -5,7 +5,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "pyright", "ruff", "gopls", "ts_ls" },
+      ensure_installed = { "pyright", "ruff", "gopls", "ts_ls", "lua_ls" },
       automatic_enable = true,
     },
   },
@@ -205,6 +205,40 @@ return {
               includeInlayFunctionLikeReturnTypeHints = true,
               includeInlayEnumMemberValueHints = true,
             },
+          },
+        },
+      })
+
+      -- lua_ls: Lua language server, with built-in formatting
+      vim.lsp.config("lua_ls", {
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          on_attach(client, bufnr)
+          vim.keymap.set("n", "<leader>gf", function()
+            vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = true })
+          end, { buffer = bufnr, desc = "lua_ls: format buffer" })
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = false })
+            end,
+          })
+        end,
+        settings = {
+          Lua = {
+            runtime = { version = "LuaJIT" },
+            diagnostics = { globals = { "vim" } },
+            workspace = {
+              -- Teach the server the vim.* API and lazy.nvim so editing this
+              -- very config gets proper types, hover docs and completions.
+              library = {
+                vim.env.VIMRUNTIME .. "/lua",
+                vim.fn.stdpath("config") .. "/lua",
+                vim.fn.stdpath("data") .. "/lazy/lazy.nvim/lua",
+              },
+              checkThirdParty = false, -- suppress "Add library to workspace?" prompts
+            },
+            format = { enable = true },
           },
         },
       })

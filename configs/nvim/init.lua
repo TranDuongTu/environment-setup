@@ -31,7 +31,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins")
 
-vim.cmd.colorscheme "catppuccin-mocha"
+vim.cmd.colorscheme "catppuccin"
 
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
@@ -46,7 +46,8 @@ vim.keymap.set('n', '<leader>o', ':Neotree focus<CR>', { desc = 'Focus Neo-tree'
 -- Git keymaps
 vim.keymap.set('n', '<leader>gd', ':DiffviewOpen<CR>', { desc = 'Diffview: open changed files', silent = true })
 vim.keymap.set('n', '<leader>gc', ':DiffviewClose<CR>', { desc = 'Diffview: close', silent = true })
-vim.keymap.set('n', '<leader>gh', ':DiffviewFileHistory %<CR>', { desc = 'Diffview: current file history', silent = true })
+vim.keymap.set('n', '<leader>gh', ':DiffviewFileHistory %<CR>',
+  { desc = 'Diffview: current file history', silent = true })
 vim.keymap.set('n', '<leader>gb', function() require('gitsigns').blame_line() end, { desc = 'Git blame line' })
 vim.keymap.set('n', '<leader>gB', function()
   local blame_wins = vim.tbl_filter(function(w)
@@ -74,8 +75,10 @@ vim.keymap.set('n', '<leader>gk', function()
     require('gitsigns').nav_hunk('prev')
   end
 end, { desc = 'Git previous hunk' })
-vim.keymap.set('n', '<leader>gV', function() require('gitsigns').preview_hunk() end, { desc = 'Git preview hunk (hover)' })
-vim.keymap.set('n', '<leader>gi', function() require('gitsigns').preview_hunk_inline() end, { desc = 'Git preview hunk inline' })
+vim.keymap.set('n', '<leader>gV', function() require('gitsigns').preview_hunk() end,
+  { desc = 'Git preview hunk (hover)' })
+vim.keymap.set('n', '<leader>gi', function() require('gitsigns').preview_hunk_inline() end,
+  { desc = 'Git preview hunk inline' })
 vim.keymap.set('n', '<leader>gn', function() require('neogit').open() end, { desc = 'Neogit: open' })
 
 -- Octo (GitHub) keymaps
@@ -84,3 +87,4 @@ vim.keymap.set('n', '<leader>gp', ':Octo pr list<CR>', { desc = 'Octo: PR list',
 vim.keymap.set('n', '<leader>gv', ':Octo pr view<CR>', { desc = 'Octo: view current PR', silent = true })
 vim.keymap.set('n', '<leader>gs', ':Octo review start<CR>', { desc = 'Octo: start review', silent = true })
 vim.keymap.set('n', '<leader>gu', ':Octo review submit<CR>', { desc = 'Octo: submit review', silent = true })
+
