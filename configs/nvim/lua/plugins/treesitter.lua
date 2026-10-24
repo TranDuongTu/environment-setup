@@ -9,10 +9,10 @@ return {
       -- turned on automatically. So: install parsers, then wire up highlighting
       -- and treesitter indentation per filetype.
       -- (Runs async; on first install it finishes in the background.)
-      local parsers = { "lua", "vim", "json", "bash", "markdown", "markdown_inline", "python", "go", "typescript", "tsx", "javascript", "dart" }
+      local parsers = { "lua", "vim", "json", "bash", "markdown", "markdown_inline", "python", "go", "typescript", "tsx", "javascript", "dart", "proto", "yaml" }
       require("nvim-treesitter").install(parsers)
 
-      local filetypes = { "lua", "vim", "json", "bash", "markdown", "python", "go", "typescript", "typescriptreact", "javascript", "dart" }
+      local filetypes = { "lua", "vim", "json", "bash", "markdown", "python", "go", "typescript", "typescriptreact", "javascript", "dart", "proto", "buf-config" }
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("treesitter-features", { clear = true }),
         pattern = filetypes,

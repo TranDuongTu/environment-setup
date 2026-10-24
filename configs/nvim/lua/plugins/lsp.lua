@@ -5,7 +5,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "pyright", "ruff", "gopls", "ts_ls", "lua_ls" },
+      ensure_installed = { "pyright", "ruff", "gopls", "ts_ls", "lua_ls", "buf_ls" },
       automatic_enable = true,
     },
   },
@@ -241,6 +241,42 @@ return {
             format = { enable = true },
           },
         },
+      })
+
+      -- buf_ls: Protobuf language server, shipped inside the `buf` CLI itself
+      -- (mason installs the `buf` package for it). A buf.yaml or .git marks the
+      -- module root; inline diagnostics come from buf.yaml's lint config.
+      -- Buf config files get their own filetype so the LSP attaches to them,
+      -- and are highlighted with treesitter's yaml parser.
+      vim.filetype.add({
+        filename = {
+          ["buf.yaml"]       = "buf-config",
+          ["buf.gen.yaml"]   = "buf-config",
+          ["buf.policy.yaml"] = "buf-config",
+          ["buf.lock"]       = "buf-config",
+        },
+      })
+      vim.treesitter.language.register("yaml", "buf-config")
+
+      vim.lsp.config("buf_ls", {
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          on_attach(client, bufnr)
+          -- <leader>gf and format on save run `buf format` through the LSP
+          -- (recent buf versions register a formatting provider; older ones
+          -- are skipped via the capability check).
+          if client:supports_method("textDocument/formatting") then
+            vim.keymap.set("n", "<leader>gf", function()
+              vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = true })
+            end, { buffer = bufnr, desc = "buf_ls: format buffer" })
+            vim.api.nvim_create_autocmd("BufWritePre", {
+              buffer = bufnr,
+              callback = function()
+                vim.lsp.buf.format({ bufnr = bufnr, id = client.id, async = false })
+              end,
+            })
+          end
+        end,
       })
 
       -- dartls: Dart/Flutter. The server ships inside the Dart SDK (not in
