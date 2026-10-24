@@ -87,4 +87,3 @@ vim.keymap.set('n', '<leader>gp', ':Octo pr list<CR>', { desc = 'Octo: PR list',
 vim.keymap.set('n', '<leader>gv', ':Octo pr view<CR>', { desc = 'Octo: view current PR', silent = true })
 vim.keymap.set('n', '<leader>gs', ':Octo review start<CR>', { desc = 'Octo: start review', silent = true })
 vim.keymap.set('n', '<leader>gu', ':Octo review submit<CR>', { desc = 'Octo: submit review', silent = true })
-
