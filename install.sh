@@ -276,6 +276,8 @@ deploy_configs() {
 
   # Tmux
   copy_file "$CONFIGS_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+  # Tmux helper scripts (file-search popup, etc.)
+  copy_dir "$CONFIGS_DIR/tmux/scripts" "$HOME/.config/tmux/scripts"
 
   # Tmuxinator workspace presets
   copy_dir "$CONFIGS_DIR/tmuxinator" "$HOME/.config/tmuxinator"

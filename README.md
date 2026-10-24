@@ -164,7 +164,7 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 
 **Settings:**
 - Status bar at top
-- Catppuccin frappe theme: rounded window pills (index on the left, icon: nvim vs terminal/shell fallback) and session + battery modules on the right
+- Catppuccin mocha theme (matches the nvim colorscheme): session pill on the left with the window pills after it (rounded, index + icon), pane path + battery on the right
 - Mouse support on (drag selects text, wheel scrolls history)
 - Pane borders show pane index, pane title, and current command
 - Clipboard via `pbcopy` (macOS) / `xclip` (Linux)
@@ -178,6 +178,7 @@ Plugin manager: [TPM](https://github.com/tmux-plugins/tpm) (cloned to `~/.tmux/p
 | `C-b W` | Open workspace launcher (fzf: layout → repo → agent) |
 | `C-b o` | tmux-sessionx: switch/create/kill sessions (fzf popup w/ previews) |
 | `C-b p` | tmux-floax: toggle persistent floating scratch shell |
+| `C-b f` | File search: fzf popup (ripgrep file list) → opens picks in nvim (new window) |
 | `C-b C-s` | Resurrect: save all sessions |
 | `C-b C-r` | Resurrect: restore sessions from the last save |
 
