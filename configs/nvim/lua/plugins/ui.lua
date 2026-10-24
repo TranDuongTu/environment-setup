@@ -7,8 +7,6 @@ return {
     priority = 1000,
     opts = {
       flavour = "mocha",
-      -- Don't paint the editor background; let Ghostty's transparency show
-      transparent_background = true,
     },
   },
   {
@@ -26,3 +24,4 @@ return {
     },
   },
 }
+
