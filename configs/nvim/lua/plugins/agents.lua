@@ -46,6 +46,9 @@ return {
       -- Botright vertical split = right-most pane (~30%), mirroring the
       -- tmuxinator dev/dev-lite layouts where the agent pane sits right.
       window = { position = "botright vertical" },
+      -- Launch claude in bypass-permissions mode by default; the plugin
+      -- appends variant flags (e.g. --continue) after this string.
+      command = "claude --dangerously-skip-permissions",
       keymaps = {
         toggle = {
           normal = "<leader>ac",
