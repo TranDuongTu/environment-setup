@@ -16,6 +16,11 @@ return {
       options = {
         theme = "auto",
       },
+      sections = {
+        -- path = 1 → relative path from the project root (nvim's cwd) instead
+        -- of the bare filename. Use 2 for absolute, 3 for absolute with ~/.
+        lualine_c = { { "filename", path = 1 } },
+      },
     },
   },
 }
