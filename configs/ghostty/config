@@ -7,3 +7,10 @@ mouse-hide-while-typing = true
 window-decoration = false
 macos-option-as-alt = true
 background-opacity = 0.70
+# Apply the same 0.70 opacity to cells that programs paint themselves
+# (Neovim, opencode, tmux bars, popups, fzf...). Without it Ghostty keeps
+# any app-set background color fully opaque (behavior since Ghostty 1.2).
+background-opacity-cells = true
+# Optional: match the terminal's own background to catppuccin-mocha "base"
+# so transparent apps blend with the mocha look. Uncomment to use.
+# background = #1e1e2e
