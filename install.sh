@@ -23,9 +23,11 @@ warn()  { printf '\033[1;33m[WARN]\033[0m  %s\n' "$*"; }
 command_exists() { command -v "$1" &>/dev/null; }
 
 usage() {
-  echo "Usage: ./install.sh [nvim|all]"
-  echo "  (no argument)  Full setup: packages, all configs, fonts, plugins, fish shell"
+  echo "Usage: ./install.sh [nvim|agents [--claude|--opencode]|all]"
+  echo "  (no argument)  Full setup: packages, all configs, fonts, plugins, fish shell, agent skills"
   echo "  nvim           Only deploy the Neovim config and sync its plugins"
+  echo "  agents         Only copy agent/skills/* into ~/.claude/skills and ~/.config/opencode/skills"
+  echo "                 (--claude or --opencode limits it to one; default is both)"
   echo "  all            Same as no argument"
 }
 
@@ -554,20 +556,50 @@ set_fish_default() {
   ok "Default shell set to fish (will take effect on next login)"
 }
 
+# ── Agent skills ─────────────────────────────────────────────────────────────
+
+install_agent_skills() {
+  local do_claude="$1" do_opencode="$2" skill
+  for skill in "$SCRIPT_DIR"/agent/skills/*/; do
+    [ -f "$skill/SKILL.md" ] || continue
+    skill="${skill%/}"
+    if [ "$do_claude" = 1 ]; then
+      copy_dir "$skill" "$HOME/.claude/skills/$(basename "$skill")"
+    fi
+    if [ "$do_opencode" = 1 ]; then
+      copy_dir "$skill" "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/$(basename "$skill")"
+    fi
+  done
+}
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 main() {
-  local target
+  local target agent_claude=0 agent_opencode=0 arg
 
-  if [ "$#" -gt 1 ]; then
-    echo "Error: expected at most one argument." >&2
+  target="${1:-all}"
+  [ "$#" -gt 0 ] && shift
+
+  if [ "$target" = "agents" ]; then
+    for arg in "$@"; do
+      case "$arg" in
+        --claude)   agent_claude=1 ;;
+        --opencode) agent_opencode=1 ;;
+        *) echo "Error: unknown option '$arg'." >&2; usage; exit 1 ;;
+      esac
+    done
+  elif [ "$#" -gt 0 ]; then
+    echo "Error: unexpected extra arguments." >&2
     usage
     exit 1
   fi
+  if [ "$agent_claude" = 0 ] && [ "$agent_opencode" = 0 ]; then
+    agent_claude=1
+    agent_opencode=1
+  fi
 
-  target="${1:-all}"
   case "$target" in
-    all|nvim) ;;
+    all|nvim|agents) ;;
     *)
       echo "Error: unknown target '$target'." >&2
       usage
@@ -582,6 +614,12 @@ main() {
   echo ""
 
   detect_os
+
+  if [ "$target" = "agents" ]; then
+    info "Mode: agents (copy agent skills only)"
+    install_agent_skills "$agent_claude" "$agent_opencode"
+    return
+  fi
 
   if [ "$target" = "nvim" ]; then
     info "Mode: nvim (deploy Neovim config + sync plugins only)"
@@ -627,6 +665,9 @@ main() {
 
   # Neovim bootstrap
   setup_nvim
+
+  # Agent skills (claude + opencode)
+  install_agent_skills 1 1
 
   # Default shell
   set_fish_default
