@@ -55,6 +55,14 @@ return {
           { name = "path" },
         }),
       })
+
+      -- nvim-autopairs integration: after confirming an item, apply pair
+      -- rules (e.g. insert "(" when the item is a function/method). The
+      -- handler is resolved lazily so autopairs' InsertEnter lazy-load is
+      -- preserved (it is always loaded by the time a confirm can happen).
+      cmp.event:on("confirm_done", function(entry)
+        require("nvim-autopairs.completion.cmp").on_confirm_done()(entry)
+      end)
     end,
   },
 }
