@@ -1,7 +1,42 @@
 return {
   { "folke/which-key.nvim" },
   { "nvim-tree/nvim-web-devicons", opts = {} },
-  { "catppuccin/nvim",             name = "catppuccin", priority = 1000 },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    -- bufferline integration keeps the tab bar colors in sync with catppuccin
+    opts = { integrations = { bufferline = true } },
+  },
+  {
+    "akinsho/bufferline.nvim",
+    version = "*",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      options = {
+        -- show open buffers as tabs (vs. vim tab pages)
+        mode = "buffers",
+        -- show LSP error/warning counts on each buffer tab
+        diagnostics = "nvim_lsp",
+        -- keep the bar visible even with a single buffer
+        always_show_bufferline = true,
+        -- push the tabs right of the Neo-tree sidebar
+        -- show the current git repo name, bold and centered, over the
+        -- Neo-tree sidebar area
+        offsets = {
+          {
+            filetype = "neo-tree",
+            text = function()
+              local root = vim.fs.root(0, ".git")
+              return root and vim.fn.fnamemodify(root, ":t") or ""
+            end,
+            text_align = "center",
+            highlight = "BufferlineRepoName",
+          },
+        },
+      },
+    },
+  },
   {
     'everviolet/nvim',
     name = 'evergarden',

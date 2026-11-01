@@ -31,6 +31,14 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins")
 
+-- Bold highlight used by bufferline's sidebar offset (git repo name).
+-- Registered as a ColorScheme autocmd so colorschemes don't wipe it.
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function()
+    vim.api.nvim_set_hl(0, "BufferlineRepoName", { bold = true })
+  end,
+})
+
 vim.cmd.colorscheme "catppuccin"
 
 local builtin = require('telescope.builtin')
