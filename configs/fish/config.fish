@@ -10,6 +10,8 @@ for dir in /opt/homebrew/bin $HOME/.local/bin $HOME/.opencode/bin
     end
 end
 
+set -gx EDITOR nvim
+
 if status is-interactive
 # Commands to run in interactive sessions can go here
 end

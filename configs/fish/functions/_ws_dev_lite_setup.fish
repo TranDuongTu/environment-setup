@@ -8,7 +8,7 @@ function _ws_dev_lite_setup --description "Internal: build dev-lite windows (nvi
 
     set -l agent_cmd $agent
     test "$agent" = "claude"; and set agent_cmd "claude --dangerously-skip-permissions"
-    test "$agent" = "opencode"; and set agent_cmd "env EDITOR=nvim opencode"
+    test "$agent" = "opencode"; and set agent_cmd "opencode"
 
     set -l session (tmux display-message -p '#{session_name}')
 

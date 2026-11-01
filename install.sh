@@ -26,7 +26,7 @@ usage() {
   echo "Usage: ./install.sh [nvim|agents [--claude|--opencode]|all]"
   echo "  (no argument)  Full setup: packages, all configs, fonts, plugins, fish shell, agent skills"
   echo "  nvim           Only deploy the Neovim config and sync its plugins"
-  echo "  agents         Only copy agent/skills/* into ~/.claude/skills and ~/.config/opencode/skills"
+  echo "  agents         Only copy agent/AGENTS.md (global instructions) and agent/skills/* for claude/opencode"
   echo "                 (--claude or --opencode limits it to one; default is both)"
   echo "  all            Same as no argument"
 }
@@ -559,7 +559,18 @@ set_fish_default() {
 # ── Agent skills ─────────────────────────────────────────────────────────────
 
 install_agent_skills() {
-  local do_claude="$1" do_opencode="$2" skill
+  local do_claude="$1" do_opencode="$2" skill oc_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+  # Global instructions: claude reads ~/.claude/CLAUDE.md, opencode reads ~/.config/opencode/AGENTS.md
+  if [ "$do_claude" = 1 ]; then
+    mkdir -p "$HOME/.claude"
+    cp -f "$SCRIPT_DIR/agent/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+    ok "Installed ~/.claude/CLAUDE.md"
+  fi
+  if [ "$do_opencode" = 1 ]; then
+    mkdir -p "$oc_dir"
+    cp -f "$SCRIPT_DIR/agent/AGENTS.md" "$oc_dir/AGENTS.md"
+    ok "Installed $oc_dir/AGENTS.md"
+  fi
   for skill in "$SCRIPT_DIR"/agent/skills/*/; do
     [ -f "$skill/SKILL.md" ] || continue
     skill="${skill%/}"
@@ -567,7 +578,7 @@ install_agent_skills() {
       copy_dir "$skill" "$HOME/.claude/skills/$(basename "$skill")"
     fi
     if [ "$do_opencode" = 1 ]; then
-      copy_dir "$skill" "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/$(basename "$skill")"
+      copy_dir "$skill" "$oc_dir/skills/$(basename "$skill")"
     fi
   done
 }
