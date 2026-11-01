@@ -23,6 +23,29 @@ return {
       "MunifTanjim/nui.nvim",
     },
     opts = {
+      -- Needed because setup/init.lua drops any source_selector tab whose
+      -- source isn't in this top-level list (defaults omit document_symbols).
+      sources = {
+        "filesystem",
+        "buffers",
+        "git_status",
+        "document_symbols",
+      },
+      -- Clickable tabs in the tree's winbar (top-level key: selector.lua reads
+      -- config.source_selector directly with no `window.` fallback). Shows
+      -- every source with the active one highlighted (NeoTreeTabActive);
+      -- click a tab to switch. display_name falls back to each source's own
+      -- defaults when omitted.
+      source_selector = {
+        winbar = true,
+        statusline = false,
+        sources = {
+          { source = "filesystem" },
+          { source = "buffers" },
+          { source = "git_status" },
+          { source = "document_symbols" },
+        },
+      },
       filesystem = {
         filtered_items = {
           visible = true,
