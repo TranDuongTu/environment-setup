@@ -4,7 +4,7 @@ This repo is a personal dev environment bootstrap. It installs and configures Ne
 
 ## What this repo does
 
-- `install.sh` — idempotent setup script: installs system packages, copies configs, installs plugin managers, sets fish as default shell. `./install.sh nvim` deploys only the Neovim config and syncs its plugins (skipping packages and other tools); plain `./install.sh` does everything
+- `install.sh` — idempotent setup script: installs system packages, copies configs, installs plugin managers, sets fish as default shell. `./install.sh nvim` deploys only the Neovim config and syncs its plugins (skipping packages and other tools); `./install.sh shell` deploys only the fish + OMF configs; `./install.sh agents` installs only agent instructions and skills; plain `./install.sh` does everything
 - `configs/` — source-of-truth for all tool configs; changes here are deployed by re-running `install.sh`
 
 ## Key constraints

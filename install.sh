@@ -23,9 +23,10 @@ warn()  { printf '\033[1;33m[WARN]\033[0m  %s\n' "$*"; }
 command_exists() { command -v "$1" &>/dev/null; }
 
 usage() {
-  echo "Usage: ./install.sh [nvim|agents [--claude|--opencode]|all]"
+  echo "Usage: ./install.sh [nvim|shell|agents [--claude|--opencode]|all]"
   echo "  (no argument)  Full setup: packages, all configs, fonts, plugins, fish shell, agent skills"
   echo "  nvim           Only deploy the Neovim config and sync its plugins"
+  echo "  shell          Only deploy the fish + Oh My Fish configs (installs OMF if missing)"
   echo "  agents         Only copy agent/AGENTS.md (global instructions) and agent/skills/* for claude/opencode"
   echo "                 (--claude or --opencode limits it to one; default is both)"
   echo "  all            Same as no argument"
@@ -270,6 +271,21 @@ copy_dir() {
   ok "Copied: $src -> $dest"
 }
 
+deploy_fish_config() {
+  # Fish
+  copy_dir "$CONFIGS_DIR/fish" "$HOME/.config/fish"
+  # Remove stale fish functions renamed in earlier versions
+  for stale in _ws_big_setup.fish; do
+    if [ -f "$HOME/.config/fish/functions/$stale" ]; then
+      warn "Removing stale fish function: $stale"
+      rm -f "$HOME/.config/fish/functions/$stale"
+    fi
+  done
+
+  # Oh My Fish config
+  copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
+}
+
 deploy_configs() {
   info "Deploying config files..."
 
@@ -291,24 +307,13 @@ deploy_configs() {
     fi
   done
 
-  # Fish
-  copy_dir "$CONFIGS_DIR/fish" "$HOME/.config/fish"
-  # Remove stale fish functions renamed in earlier versions
-  for stale in _ws_big_setup.fish; do
-    if [ -f "$HOME/.config/fish/functions/$stale" ]; then
-      warn "Removing stale fish function: $stale"
-      rm -f "$HOME/.config/fish/functions/$stale"
-    fi
-  done
+  deploy_fish_config
 
   # WezTerm
   copy_dir "$CONFIGS_DIR/wezterm" "$HOME/.config/wezterm"
 
   # Ghostty
   copy_file "$CONFIGS_DIR/ghostty/config" "$HOME/.config/ghostty/config"
-
-  # Oh My Fish config
-  copy_dir "$CONFIGS_DIR/omf" "$HOME/.config/omf"
 }
 
 # ── tmuxinator ───────────────────────────────────────────────────────────────
@@ -610,7 +615,7 @@ main() {
   fi
 
   case "$target" in
-    all|nvim|agents) ;;
+    all|nvim|shell|agents) ;;
     *)
       echo "Error: unknown target '$target'." >&2
       usage
@@ -629,6 +634,22 @@ main() {
   if [ "$target" = "agents" ]; then
     info "Mode: agents (copy agent skills only)"
     install_agent_skills "$agent_claude" "$agent_opencode"
+    return
+  fi
+
+  if [ "$target" = "shell" ]; then
+    info "Mode: shell (deploy fish + OMF configs only)"
+
+    if ! command_exists fish; then
+      echo "Error: fish is not installed. Run the full install first: ./install.sh" >&2
+      exit 1
+    fi
+
+    deploy_fish_config
+    install_omf
+
+    echo ""
+    echo "Shell setup complete — restart fish (or run: exec fish) to reload configs."
     return
   fi
 
