@@ -12,7 +12,7 @@ return {
       local parsers = { "lua", "vim", "json", "bash", "markdown", "markdown_inline", "python", "go", "typescript", "tsx", "javascript", "dart", "proto", "yaml" }
       require("nvim-treesitter").install(parsers)
 
-      local filetypes = { "lua", "vim", "json", "bash", "markdown", "python", "go", "typescript", "typescriptreact", "javascript", "dart", "proto", "buf-config" }
+      local filetypes = { "lua", "vim", "json", "bash", "markdown", "python", "go", "typescript", "typescriptreact", "javascript", "dart", "proto", "yaml", "buf-config" }
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("treesitter-features", { clear = true }),
         pattern = filetypes,
@@ -22,6 +22,10 @@ return {
           vim.treesitter.start(args.buf)
           -- Treesitter indentation (Enter/o/O keep block indent, `=` reindents).
           vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          -- Treesitter folding (za/zc/zo toggle, zM/zR all); start expanded.
+          vim.wo.foldmethod = "expr"
+          vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+          vim.wo.foldlevel = 99
         end,
       })
     end,
