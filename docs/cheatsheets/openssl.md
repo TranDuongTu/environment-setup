@@ -81,3 +81,19 @@ printf 'X' | dd of=sig.bin bs=1 seek=0 conv=notrunc
 - Ed25519: key 32 B, sig 64 B
 - P-256: sig ~70-72 B (DER)
 - RSA-3072: sig 384 B
+
+## Hash / HMAC / random
+
+```
+openssl dgst -sha256 file
+openssl dgst -sha256 -r file
+shasum -a 256 file
+echo -n "text" | openssl dgst -sha256
+openssl dgst -sha256 -r file > file.sha256
+shasum -a 256 -c file.sha256
+openssl dgst -sha256 -hmac "$(cat hmac.key)" file
+openssl rand -hex 32
+openssl rand -base64 32
+openssl rand -out rand.bin 32
+```
+
