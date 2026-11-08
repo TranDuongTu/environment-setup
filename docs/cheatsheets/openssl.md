@@ -97,3 +97,76 @@ openssl rand -base64 32
 openssl rand -out rand.bin 32
 ```
 
+
+## CSR
+
+```
+openssl req -new -key server.key -subj "/CN=localhost" -out server.csr
+openssl req -in server.csr -text -noout
+openssl req -in server.csr -verify -noout
+```
+
+## Self-signed cert (with SAN)
+
+```
+openssl req -x509 -new -key server.key -subj "/CN=localhost" -days 30 \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1" \
+  -addext "basicConstraints=critical,CA:false" \
+  -out self.crt
+```
+
+## Inspect cert
+
+```
+openssl x509 -in c.crt -text -noout
+openssl x509 -in c.crt -noout -subject -issuer -dates -serial
+openssl x509 -in c.crt -noout -fingerprint -sha256
+openssl x509 -in c.crt -noout -ext subjectAltName,basicConstraints,keyUsage
+openssl x509 -in c.crt -noout -pubkey
+```
+
+## Cert matches key?
+
+```
+diff <(openssl x509 -in c.crt -noout -pubkey) <(openssl pkey -in c.key -pubout)
+```
+
+## Create root CA
+
+```
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -aes-256-cbc -out ca.key
+openssl req -x509 -new -key ca.key -subj "/CN=Lab Root CA" -days 365 \
+  -addext "basicConstraints=critical,CA:true" \
+  -addext "keyUsage=critical,keyCertSign,cRLSign" \
+  -out ca.crt
+```
+
+## Sign CSR with own CA
+
+`server.ext`:
+
+```
+subjectAltName=DNS:localhost,IP:127.0.0.1
+basicConstraints=critical,CA:false
+keyUsage=critical,digitalSignature
+extendedKeyUsage=serverAuth
+```
+
+```
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -days 30 -extfile server.ext -out server.crt
+```
+
+- `x509 -req` does not copy CSR extensions; set them in `-extfile`.
+- `ca.srl` tracks serial numbers.
+
+## Verify cert chain
+
+```
+openssl verify -CAfile ca.crt server.crt
+openssl verify -CAfile ca.crt -untrusted inter.crt leaf.crt
+openssl verify -CAfile ca.crt -inform DER server.der
+```
+
+- Without `-CAfile`: fails (issuer not trusted).
+- Same subject name, different key: fails (signature check).
