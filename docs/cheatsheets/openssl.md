@@ -170,3 +170,49 @@ openssl verify -CAfile ca.crt -inform DER server.der
 
 - Without `-CAfile`: fails (issuer not trusted).
 - Same subject name, different key: fails (signature check).
+
+## Create intermediate CA (signed by root)
+
+`inter.ext`:
+
+```
+basicConstraints=critical,CA:true,pathlen:0
+keyUsage=critical,keyCertSign,cRLSign
+```
+
+```
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out inter.key
+openssl req -new -key inter.key -subj "/CN=Lab Intermediate CA" -out inter.csr
+openssl x509 -req -in inter.csr -CA root.crt -CAkey root.key -CAcreateserial \
+  -days 1825 -extfile inter.ext -out inter.crt
+openssl verify -CAfile root.crt inter.crt
+```
+
+- `pathlen:0`: can sign leaves, not further CAs.
+
+## Sign leaf with intermediate
+
+```
+openssl x509 -req -in leaf.csr -CA inter.crt -CAkey inter.key -CAcreateserial \
+  -days 90 -extfile leaf.ext -out leaf.crt
+```
+
+## Verify chain with intermediate
+
+```
+openssl verify -CAfile root.crt -untrusted inter.crt leaf.crt
+openssl verify -show_chain -CAfile root.crt -untrusted inter.crt leaf.crt
+```
+
+- `-untrusted`: helper certs to build the chain, not trust anchors.
+- `verify` checks each cert in the target file separately; extra certs in it are not used as helpers. `verify -CAfile root.crt fullchain.crt` fails with error 20.
+- Fix: `openssl verify -CAfile root.crt -untrusted fullchain.crt leaf.crt`
+
+## Chain file for servers
+
+```
+cat leaf.crt inter.crt > fullchain.crt
+```
+
+- Order: leaf, then intermediates. Never include root.
+- TLS clients build the chain from certs the server sends, so fullchain works there.
