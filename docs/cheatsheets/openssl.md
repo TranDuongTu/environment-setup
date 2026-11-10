@@ -216,3 +216,50 @@ cat leaf.crt inter.crt > fullchain.crt
 
 - Order: leaf, then intermediates. Never include root.
 - TLS clients build the chain from certs the server sends, so fullchain works there.
+
+## TLS test server
+
+```
+openssl s_server -cert leaf.crt -cert_chain inter.crt -key leaf.key -port 4433 -www
+```
+
+- `-cert_chain`: intermediates to send. Never the root.
+- Server ignores SNI/hostname; always sends the same cert.
+
+## TLS client (s_client)
+
+```
+openssl s_client -connect localhost:4433 -CAfile root.crt -verify_return_error -brief </dev/null
+openssl s_client -connect localhost:4433 -CAfile root.crt -showcerts </dev/null 2>&1 | grep -E '^ *[0-9] s:|i:|Verif'
+openssl s_client -connect localhost:4433 -CAfile root.crt -tls1_3 -brief </dev/null
+openssl s_client -connect github.com:443 -servername github.com -showcerts </dev/null
+```
+
+- Without `-CAfile`: error 20 (root not in default store).
+- Without `-verify_return_error`: errors are printed but the connection continues.
+
+## Hostname check
+
+```
+openssl s_client -connect 127.0.0.1:4433 -CAfile root.crt -verify_hostname localhost -brief </dev/null
+openssl s_client -connect localhost:4433 -CAfile root.crt -verify_ip 127.0.0.1 -brief </dev/null
+```
+
+- Client-side only: expected name vs leaf SAN. Mismatch → error 62.
+- `s_client` checks only if `-verify_hostname` / `-verify_ip` given. curl, browsers always check.
+- Chain valid ≠ right site; hostname check binds cert to intended name.
+- SNI (`-servername`) = hint to the server for choosing a cert; not verification.
+
+## curl with private CA
+
+```
+curl --cacert root.crt https://localhost:4433/
+curl -v --cacert root.crt https://localhost:4433/
+```
+
+## Trust model
+
+- Trust is client-side: client trusts root → accepts any leaf under it.
+- Server must send leaf + intermediates.
+- Trust stores are separate: macOS Keychain, openssl cert.pem, Java cacerts, Firefox, certifi, Node.
+- Constrain internal roots with nameConstraints.
