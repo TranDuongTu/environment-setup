@@ -263,3 +263,53 @@ curl -v --cacert root.crt https://localhost:4433/
 - Server must send leaf + intermediates.
 - Trust stores are separate: macOS Keychain, openssl cert.pem, Java cacerts, Firefox, certifi, Node.
 - Constrain internal roots with nameConstraints.
+
+## Client cert (mTLS)
+
+`client.ext`:
+
+```
+basicConstraints=critical,CA:false
+keyUsage=critical,digitalSignature
+extendedKeyUsage=clientAuth
+```
+
+```
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out client.key
+openssl req -new -key client.key -subj "/CN=alice" -out client.csr
+openssl x509 -req -in client.csr -CA inter.crt -CAkey inter.key -CAcreateserial \
+  -days 30 -extfile client.ext -out client.crt
+openssl verify -CAfile root.crt -untrusted inter.crt -purpose sslclient client.crt
+```
+
+- EKU: `clientAuth` for clients, `serverAuth` for servers.
+
+## mTLS server
+
+```
+openssl s_server -cert leaf.crt -cert_chain inter.crt -key leaf.key -port 4433 \
+  -CAfile root.crt -Verify 1 -verify_return_error -www
+```
+
+- `-Verify 1`: require client cert (depth 1). `-verify`: only request.
+- `-CAfile`: trust anchor for client certs.
+- Server log shows client chain (`depth=`) and subject.
+
+## mTLS client
+
+```
+openssl s_client -connect localhost:4433 -CAfile root.crt \
+  -cert client.crt -key client.key -cert_chain inter.crt -brief </dev/null
+printf 'GET / HTTP/1.0\r\n\r\n' | openssl s_client -connect localhost:4433 -CAfile root.crt \
+  -cert client.crt -key client.key -cert_chain inter.crt -quiet
+```
+
+- `-cert_chain`: send intermediates; the server has only the root.
+- TLS 1.3: `-brief </dev/null` shows CONNECTION ESTABLISHED even when the server rejects. The rejection arrives after, on the first read. Send a request (second form) or check the server log.
+- System curl (SecureTransport/LibreSSL 3.3.6) failed against this mTLS server (`alert decode error`). Use `s_client`, or `brew install curl` (untested).
+
+## mTLS failure signatures
+
+- No client cert: `tlsv13 alert certificate required` (alert 116); server: `peer did not return a certificate`.
+- Cert from unknown CA (self-signed, same CN): `alert unknown ca` (48); server: `self-signed certificate`.
+- Server leaf used as client cert: `alert unsupported certificate` (43); server: `unsuitable certificate purpose` (EKU).
